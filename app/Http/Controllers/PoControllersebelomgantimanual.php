@@ -14,42 +14,25 @@ use NcJoes\OfficeConverter\OfficeConverter;
 use PhpOffice\PhpWord\TemplateProcessor;
 
 class PoController extends Controller
-{public function index(Request $request)
+{
+    public function index(Request $request)
     {
-        $query = PO::query()->with(['supplier', 'perusahaan', 'proyek']);
-    
+        $query = Po::with('details', 'proyek');
+
         if ($request->id_supplier) {
             $query->where('id_supplier', $request->id_supplier);
         }
-    
+
         if ($request->id_perusahaan) {
             $query->where('id_perusahaan', $request->id_perusahaan);
         }
-    
-        if ($request->search) {
-            $keywords = explode(' ', $request->search);
-    
-            $query->where(function($q) use ($keywords) {
-                foreach ($keywords as $word) {
-                    $q->where(function($subQuery) use ($word) {
-                        $subQuery->where('no_po', 'like', '%' . $word . '%')
-                                 ->orWhere('nama_supplier', 'like', '%' . $word . '%')
-                                 ->orWhereHas('proyek', function($q2) use ($word) {
-                                     $q2->where('nama_proyek', 'like', '%' . $word . '%');
-                                 });
-                    });
-                }
-            });
-        }
-    
-        $po = $query->orderBy('tanggal', 'desc')->paginate(10);
-    
+
+        $po = $query->get();
         $suppliers = Supplier::all();
         $perusahaan = Perusahaan::all();
-    
+
         return view('po.index', compact('po', 'suppliers', 'perusahaan'));
     }
-    
 
     public function create()
     {
@@ -128,9 +111,8 @@ class PoController extends Controller
 
     public function edit($id)
     {
-
         $po = Po::with('details')->findOrFail($id);
-        
+
         if ($po->status == 'sedang diproses') {
             return redirect()->route('po.index')->with('error', 'PO ini sudah diproses dan tidak dapat diedit.');
         }
@@ -203,7 +185,7 @@ class PoController extends Controller
 
         return redirect()->route('po.index')->with('success', 'PO berhasil diupdate.');
     }
-        
+
     public function destroy($id)
     {
         $po = Po::findOrFail($id);
@@ -215,7 +197,7 @@ class PoController extends Controller
 
     public function print($id)
 {
-    $po = Po::with(['details', 'perusahaan', 'proyek','supplier'])->findOrFail($id);
+    $po = Po::with(['details', 'perusahaan', 'proyek'])->findOrFail($id);
 
     if ($po->status == 'draft') {
         if (!$po->perusahaan || !$po->perusahaan->template_po) {
@@ -230,11 +212,10 @@ class PoController extends Controller
         }
 
         $outputDocx = $outputDir . '/PO_' . str_replace('/', '_', $po->no_po) . '.docx';
-        $outputPdf = $outputDir . '/PO_' . str_replace('/', '_', $po->no_po) . '.pdf';
+        $outputPdfName = 'PO_' . str_replace('/', '_', $po->no_po) . '.pdf';
 
-        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($templatePath);
+        $templateProcessor = new TemplateProcessor($templatePath);
 
-        // Format tanggal dd MMMM yyyy (contoh: 04 Juli 2025)
         $formattedDate = Carbon::parse($po->tanggal)->translatedFormat('d F Y');
 
         $templateProcessor->setValue('no_po', $po->no_po);
@@ -242,8 +223,8 @@ class PoController extends Controller
         $templateProcessor->setValue('supplier', $po->nama_supplier);
         $templateProcessor->setValue('keterangan', $po->keterangan ?? '-');
         $templateProcessor->setValue('proyek', $po->proyek->nama_proyek ?? '-');
-        $templateProcessor->setValue('pic', $po->supplier->pic ?? '-');
-        $templateProcessor->setValue('no_kontak', $po->supplier->no_kontak ?? '-');
+        $templateProcessor->setValue('pic', $po->proyek->pic ?? '-');
+        $templateProcessor->setValue('no_kontak', $po->proyek->no_kontak ?? '-');
 
         $templateProcessor->cloneRow('item_no', count($po->details));
         $grandTotal = 0;
@@ -254,8 +235,8 @@ class PoController extends Controller
             $templateProcessor->setValue("uraian#{$row}", $detail->uraian);
             $templateProcessor->setValue("qty#{$row}", number_format($detail->qty, 0, ',', '.'));
             $templateProcessor->setValue("uom#{$row}", $detail->uom);
-            $templateProcessor->setValue("harga#{$row}", number_format($detail->harga, 0, ',', '.'));
-            $templateProcessor->setValue("total#{$row}", number_format($detail->total, 0, ',', '.'));
+            $templateProcessor->setValue("harga#{$row}", 'Rp. ' . number_format($detail->harga, 0, ',', '.'));
+            $templateProcessor->setValue("total#{$row}", 'Rp. ' . number_format($detail->total, 0, ',', '.'));
 
             $grandTotal += $detail->total;
         }
@@ -266,35 +247,55 @@ class PoController extends Controller
         $ppnRupiah = (($grandTotal - $diskonRupiah) * $ppnPersen / 100);
         $finalTotal = ($grandTotal - $diskonRupiah) + $ppnRupiah;
 
-        $templateProcessor->setValue('subtotal', number_format($grandTotal, 0, ',', '.'));
-        $templateProcessor->setValue('diskon_persen', $diskonPersen > 0 ? number_format($diskonPersen, 0, ',', '.') : '');
-        $templateProcessor->setValue('diskon_rupiah', $diskonRupiah > 0 ? number_format($diskonRupiah, 0, ',', '.') : '');
-        $templateProcessor->setValue('ppn_persen', $ppnPersen > 0 ? number_format($ppnPersen, 0, ',', '.') : '');
-        $templateProcessor->setValue('ppn_rupiah', $ppnRupiah > 0 ? number_format($ppnRupiah, 0, ',', '.') : '');
-        $templateProcessor->setValue('grand_total', number_format($finalTotal, 0, ',', '.'));
+        $templateProcessor->setValue('subtotal', 'Rp. ' . number_format($grandTotal, 0, ',', '.'));
+        $templateProcessor->setValue('diskon_persen', number_format($diskonPersen, 0, ',', '.'));
+        $templateProcessor->setValue('diskon_rupiah', 'Rp. ' . number_format($diskonRupiah, 0, ',', '.'));
+        $templateProcessor->setValue('ppn_persen', number_format($ppnPersen, 0, ',', '.'));
+        $templateProcessor->setValue('ppn_rupiah', 'Rp. ' . number_format($ppnRupiah, 0, ',', '.'));
+        $templateProcessor->setValue('grand_total', 'Rp. ' . number_format($finalTotal, 0, ',', '.'));
 
         $templateProcessor->saveAs($outputDocx);
 
-        // Jalankan LibreOffice secara manual via exec
-        $libreOfficePath = '"C:\\Program Files\\LibreOffice\\program\\soffice.exe"';
-        $command = $libreOfficePath . ' --headless --convert-to pdf --outdir ' . escapeshellarg($outputDir) . ' ' . escapeshellarg($outputDocx);
-
-        exec($command, $output, $resultCode);
-
-        if ($resultCode !== 0) {
-            return back()->with('error', 'Konversi gagal: Conversion Failure! Contact Server Admin: code ' . $resultCode . ' error:');
+        // Konversi DOCX ke PDF
+        $tmpDir = 'C:\\np\\tmp';
+        if (!file_exists($tmpDir)) {
+            mkdir($tmpDir, 0777, true);
         }
 
-        $pdfPath = 'po_files/' . $po->id . '/PO_' . str_replace('/', '_', $po->no_po) . '.pdf';
+        // Wajib set tiga ini untuk menghindari error Undefined array key "HOME"
+        putenv('HOME=' . $tmpDir);
+        $_SERVER['HOME'] = $tmpDir;
+        $_ENV['HOME'] = $tmpDir;
+
+        if (PHP_OS_FAMILY === 'Windows') {
+            $converter = new OfficeConverter(
+                $outputDocx,
+                null,
+                'C:\Program Files\LibreOffice\program\soffice.exe',
+                true
+            );
+        } else {
+            $converter = new OfficeConverter($outputDocx);
+        }
+
+        try {
+            $converter->convertTo($outputPdfName);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Konversi gagal: ' . $e->getMessage());
+        }
+
+        $pdfPath = 'po_files/' . $po->id . '/' . $outputPdfName;
 
         $po->update([
             'status' => 'sedang diproses',
             'printed_at' => now(),
             'file_path' => $pdfPath
         ]);
+
+        return back()->with('success', 'PO berhasil dicetak.');
     }
 
-    return redirect()->route('po.index')->with('success', 'PO berhasil dicetak.');
+    return back()->with('info', 'PO sudah diproses sebelumnya.');
 }
     
 }

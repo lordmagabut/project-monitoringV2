@@ -1,72 +1,56 @@
 @extends('layout.master')
 
 @section('content')
-<div class="row">
-  <div class="col-lg-8 grid-margin stretch-card">
-    <div class="card">
-      <div class="card-body">
-        <h4 class="card-title mb-4">Edit Perusahaan</h4>
+<div class="container mt-4">
+    <h2>Edit Perusahaan</h2>
+    <form action="{{ route('perusahaan.update', $perusahaan->id) }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
 
-        @if($errors->any())
-          <div class="alert alert-danger">
-            <ul class="mb-0">
-              @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-              @endforeach
-            </ul>
-          </div>
-        @endif
-
-        <form action="{{ route('perusahaan.update', $perusahaan->id) }}" method="POST" enctype="multipart/form-data">
-          @csrf
-          <div class="mb-3">
-            <label class="form-label">Nama Perusahaan</label>
+        <div class="mb-3">
+            <label for="nama_perusahaan" class="form-label">Nama Perusahaan</label>
             <input type="text" name="nama_perusahaan" class="form-control" value="{{ $perusahaan->nama_perusahaan }}" required>
-          </div>
+        </div>
 
-          <div class="mb-3">
-            <label class="form-label">Alamat</label>
-            <textarea name="alamat" class="form-control" rows="3" required>{{ $perusahaan->alamat }}</textarea>
-          </div>
+        <div class="mb-3">
+            <label for="alamat" class="form-label">Alamat</label>
+            <textarea name="alamat" class="form-control" required>{{ $perusahaan->alamat }}</textarea>
+        </div>
 
-          <div class="mb-3">
-            <label class="form-label">Email</label>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
             <input type="email" name="email" class="form-control" value="{{ $perusahaan->email }}">
-          </div>
+        </div>
 
-          <div class="mb-3">
-            <label class="form-label">No Telp</label>
+        <div class="mb-3">
+            <label for="no_telp" class="form-label">No. Telp</label>
             <input type="text" name="no_telp" class="form-control" value="{{ $perusahaan->no_telp }}">
-          </div>
+        </div>
 
-          <div class="mb-3">
-            <label class="form-label">NPWP</label>
+        <div class="mb-3">
+            <label for="npwp" class="form-label">NPWP</label>
             <input type="text" name="npwp" class="form-control" value="{{ $perusahaan->npwp }}">
-          </div>
+        </div>
 
-          <div class="mb-3">
-            <label class="form-label">Tipe Perusahaan</label>
-            <select name="tipe_perusahaan" class="form-select" required>
-              <option value="UMKM" {{ $perusahaan->tipe_perusahaan == 'UMKM' ? 'selected' : '' }}>UMKM</option>
-              <option value="Kontraktor" {{ $perusahaan->tipe_perusahaan == 'Kontraktor' ? 'selected' : '' }}>Kontraktor</option>
-              <option value="Perorangan" {{ $perusahaan->tipe_perusahaan == 'Perorangan' ? 'selected' : '' }}>Perorangan</option>
+        <div class="mb-3">
+            <label for="tipe_perusahaan" class="form-label">Tipe Perusahaan</label>
+            <select name="tipe_perusahaan" class="form-control" required>
+                <option value="UMKM" {{ $perusahaan->tipe_perusahaan == 'UMKM' ? 'selected' : '' }}>UMKM</option>
+                <option value="Kontraktor" {{ $perusahaan->tipe_perusahaan == 'Kontraktor' ? 'selected' : '' }}>Kontraktor</option>
+                <option value="Perorangan" {{ $perusahaan->tipe_perusahaan == 'Perorangan' ? 'selected' : '' }}>Perorangan</option>
             </select>
-          </div>
+        </div>
 
-          <div class="mb-3">
-            <label class="form-label">Template PO (.docx)</label>
+        <div class="mb-3">
+            <label for="template_po" class="form-label">Template PO (Opsional)</label>
+            <input type="file" name="template_po" class="form-control">
             @if($perusahaan->template_po)
-              <p>Template saat ini: <a href="{{ asset('storage/' . $perusahaan->template_po) }}" target="_blank">Lihat Template</a></p>
+                <small>File saat ini: <a href="{{ asset('storage/' . $perusahaan->template_po) }}" target="_blank">Lihat File</a></small>
             @endif
-            <input type="file" name="template_po" class="form-control" accept=".docx">
-            <small class="text-muted">Kosongkan jika tidak ingin mengganti template.</small>
-          </div>
+        </div>
 
-          <button type="submit" class="btn btn-primary">Update</button>
-          <a href="{{ route('perusahaan.index') }}" class="btn btn-secondary">Kembali</a>
-        </form>
-      </div>
-    </div>
-  </div>
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a href="{{ route('perusahaan.index') }}" class="btn btn-secondary">Batal</a>
+    </form>
 </div>
 @endsection

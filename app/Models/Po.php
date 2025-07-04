@@ -39,4 +39,9 @@ class Po extends Model
     {
         return $this->belongsTo(Proyek::class, 'id_proyek');
     }
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'id_supplier');
+    }
+
 }

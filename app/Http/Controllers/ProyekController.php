@@ -9,12 +9,30 @@ use Illuminate\Http\Request;
 
 class ProyekController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Panggil relasi perusahaan dan pemberi kerja
-        $proyeks = Proyek::with(['perusahaan', 'pemberiKerja'])->get();
-        return view('proyek.index', compact('proyeks'));
+        $query = Proyek::query()->with(['perusahaan', 'pemberiKerja']);
+    
+        if ($request->id_perusahaan) {
+            $query->where('id_perusahaan', $request->id_perusahaan);
+        }
+    
+        if ($request->id_pemberi_kerja) {
+            $query->where('pemberi_kerja_id', $request->id_pemberi_kerja);
+        }
+    
+        if ($request->search) {
+            $query->where('nama_proyek', 'like', '%' . $request->search . '%')
+                  ->orWhere('no_spk', 'like', '%' . $request->search . '%');
+        }
+    
+        $proyeks = $query->paginate(10);
+        $perusahaans = Perusahaan::all();
+        $pemberiKerjas = PemberiKerja::all();
+    
+        return view('proyek.index', compact('proyeks', 'perusahaans', 'pemberiKerjas'));
     }
+    
 
     public function create()
     {

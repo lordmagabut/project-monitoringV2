@@ -18,29 +18,31 @@
                 <a href="{{ route('po.create') }}" class="btn btn-primary mb-3">+ Tambah PO</a>
 
                 <div class="table-responsive">
-                    <form method="GET" action="{{ route('po.index') }}" class="row g-3 mb-3">
-                        <div class="col-md-4">
-                            <select name="id_supplier" class="form-select">
-                                <option value="">-- Semua Supplier --</option>
-                                @foreach($suppliers as $s)
-                                    <option value="{{ $s->id }}" {{ request('id_supplier') == $s->id ? 'selected' : '' }}>{{ $s->nama_supplier }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <select name="id_perusahaan" class="form-select">
-                                <option value="">-- Semua Perusahaan --</option>
-                                @foreach($perusahaan as $p)
-                                    <option value="{{ $p->id }}" {{ request('id_perusahaan') == $p->id ? 'selected' : '' }}>{{ $p->nama_perusahaan }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <button type="submit" class="btn btn-primary">Filter</button>
-                            <a href="{{ route('po.index') }}" class="btn btn-secondary">Reset</a>
-                        </div>
-                    </form>
-
+                <form method="GET" action="{{ route('po.index') }}" class="row g-3 mb-3">
+                    <div class="col-md-3">
+                        <select name="id_supplier" class="form-select">
+                            <option value="">-- Semua Supplier --</option>
+                            @foreach($suppliers as $s)
+                                <option value="{{ $s->id }}" {{ request('id_supplier') == $s->id ? 'selected' : '' }}>{{ $s->nama_supplier }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="id_perusahaan" class="form-select">
+                            <option value="">-- Semua Perusahaan --</option>
+                            @foreach($perusahaan as $p)
+                                <option value="{{ $p->id }}" {{ request('id_perusahaan') == $p->id ? 'selected' : '' }}>{{ $p->nama_perusahaan }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Cari No PO / Supplier / Proyek">
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary">Filter</button>
+                        <a href="{{ route('po.index') }}" class="btn btn-secondary">Reset</a>
+                    </div>
+                </form>
                     <table class="table table-hover table-bordered">
                         <thead>
                             <tr>

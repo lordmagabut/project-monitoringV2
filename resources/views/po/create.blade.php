@@ -13,12 +13,8 @@
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <label>Perusahaan</label>
-                            <select name="id_perusahaan" class="form-select" required>
-                                <option value="">-- Pilih Perusahaan --</option>
-                                @foreach($perusahaan as $p)
-                                    <option value="{{ $p->id }}">{{ $p->nama_perusahaan }}</option>
-                                @endforeach
-                            </select>
+                            <input type="text" id="namaPerusahaan" class="form-control" readonly>
+                            <input type="hidden" name="id_perusahaan" id="idPerusahaan" required>
                         </div>
                         <div class="col-md-4">
                             <label>Tanggal</label>
@@ -42,10 +38,16 @@
                         </div>
                         <div class="col-md-6">
                             <label>Proyek</label>
-                            <select name="id_proyek" class="form-select" required>
+                            <select name="id_proyek" id="proyekSelect" class="form-select" required>
                                 <option value="">-- Pilih Proyek --</option>
                                 @foreach($proyek as $pr)
-                                    <option value="{{ $pr->id }}">{{ $pr->nama_proyek }}</option>
+                                    <option 
+                                        value="{{ $pr->id }}" 
+                                        data-id-perusahaan="{{ $pr->perusahaan->id }}"
+                                        data-nama-perusahaan="{{ $pr->perusahaan->nama_perusahaan }}"
+                                    >
+                                        {{ $pr->nama_proyek }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -173,5 +175,14 @@
             hitungTotal();
         }
     });
+    document.getElementById('proyekSelect').addEventListener('change', function () {
+    let selectedOption = this.options[this.selectedIndex];
+    let idPerusahaan = selectedOption.getAttribute('data-id-perusahaan');
+    let namaPerusahaan = selectedOption.getAttribute('data-nama-perusahaan');
+
+    document.getElementById('idPerusahaan').value = idPerusahaan || '';
+    document.getElementById('namaPerusahaan').value = namaPerusahaan || '';
+});
+
 </script>
 @endsection

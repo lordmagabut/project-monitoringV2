@@ -13,6 +13,37 @@
 
         <a href="{{ route('proyek.create') }}" class="btn btn-primary mb-3">+ Tambah Proyek</a>
 
+        {{-- Form Filter dan Search --}}
+        <form method="GET" action="{{ route('proyek.index') }}" class="row g-3 mb-3">
+            <div class="col-md-3">
+                <select name="id_perusahaan" class="form-select">
+                    <option value="">-- Semua Perusahaan --</option>
+                    @foreach($perusahaans as $p)
+                        <option value="{{ $p->id }}" {{ request('id_perusahaan') == $p->id ? 'selected' : '' }}>
+                            {{ $p->nama_perusahaan }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="id_pemberi_kerja" class="form-select">
+                    <option value="">-- Semua Pemberi Kerja --</option>
+                    @foreach($pemberiKerjas as $pk)
+                        <option value="{{ $pk->id }}" {{ request('id_pemberi_kerja') == $pk->id ? 'selected' : '' }}>
+                            {{ $pk->nama_pemberi_kerja }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Cari Nama Proyek / No SPK">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="{{ route('proyek.index') }}" class="btn btn-secondary">Reset</a>
+            </div>
+        </form>
+
         <div class="table-responsive">
           <table class="table table-hover">
             <thead>
@@ -23,7 +54,6 @@
                 <th>Pemberi Kerja</th>
                 <th>No SPK</th>
                 <th>Nilai SPK</th>
-                <th>File SPK</th>
                 <th>Jenis Proyek</th>
                 <th>Aksi</th>
               </tr>
@@ -35,15 +65,14 @@
                 <td>{{ $proyek->perusahaan->nama_perusahaan }}</td>
                 <td>{{ $proyek->nama_proyek }}</td>
                 <td>{{ $proyek->pemberiKerja->nama_pemberi_kerja }}</td>
-                <td>{{ $proyek->no_spk }}</td>
-                <td>Rp. {{ number_format($proyek->nilai_spk, 0, ',', '.') }}</td>
                 <td>
                   @if($proyek->file_spk)
-                    <a href="{{ asset('storage/' . $proyek->file_spk) }}" target="_blank">Lihat SPK</a>
+                    <a href="{{ asset('storage/' . $proyek->file_spk) }}" target="_blank">{{ $proyek->no_spk }}</a>
                   @else
-                    Tidak ada file
+                    {{ $proyek->no_spk }}
                   @endif
                 </td>
+                <td>Rp. {{ number_format($proyek->nilai_spk, 0, ',', '.') }}</td>
                 <td>{{ ucfirst($proyek->jenis_proyek) }}</td>
                 <td>
                   <a href="{{ route('proyek.edit', $proyek->id) }}" class="btn btn-warning btn-sm">Edit</a>

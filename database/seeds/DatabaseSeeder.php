@@ -4,10 +4,8 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
-        $this->call([
-            TipeBarangJasaSeeder::class,
-        ]);
+        $this->call(UserSeeder::class);
     }
 }
