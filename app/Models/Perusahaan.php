@@ -18,5 +18,6 @@ class Perusahaan extends Model
         'no_telp',
         'npwp',
         'tipe_perusahaan',
+        'template_po'
     ];
 }

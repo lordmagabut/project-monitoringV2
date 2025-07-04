@@ -25,7 +25,7 @@
           </div>
         @endif
 
-        <form action="{{ route('perusahaan.store') }}" method="POST">
+        <form action="{{ route('perusahaan.store') }}" method="POST" enctype="multipart/form-data">
           @csrf
           <div class="mb-3">
             <label class="form-label">Nama Perusahaan</label>
@@ -59,6 +59,12 @@
               <option value="Kontraktor">Kontraktor</option>
               <option value="Perorangan">Perorangan</option>
             </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Upload Template PO (DOCX)</label>
+            <input type="file" name="template_po" class="form-control" accept=".docx">
+            <small class="text-muted">Kosongkan jika tidak ingin upload template</small>
           </div>
 
           <button type="submit" class="btn btn-primary">Simpan</button>

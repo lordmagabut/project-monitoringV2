@@ -16,6 +16,11 @@ use App\Http\Controllers\PemberiKerjaController;
 use App\Http\Controllers\ProyekController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\CoaController;
+use App\Http\Controllers\PoController;
+
+
+Route::get('/po/{id}/print', [PoController::class, 'print'])->name('po.print');
+Route::resource('po', PoController::class);
 
 Route::resource('coa', CoaController::class);
 

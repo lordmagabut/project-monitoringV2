@@ -17,7 +17,7 @@
           </div>
         @endif
 
-        <form action="{{ route('perusahaan.update', $perusahaan->id) }}" method="POST">
+        <form action="{{ route('perusahaan.update', $perusahaan->id) }}" method="POST" enctype="multipart/form-data">
           @csrf
           <div class="mb-3">
             <label class="form-label">Nama Perusahaan</label>
@@ -51,6 +51,15 @@
               <option value="Kontraktor" {{ $perusahaan->tipe_perusahaan == 'Kontraktor' ? 'selected' : '' }}>Kontraktor</option>
               <option value="Perorangan" {{ $perusahaan->tipe_perusahaan == 'Perorangan' ? 'selected' : '' }}>Perorangan</option>
             </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Template PO (.docx)</label>
+            @if($perusahaan->template_po)
+              <p>Template saat ini: <a href="{{ asset('storage/' . $perusahaan->template_po) }}" target="_blank">Lihat Template</a></p>
+            @endif
+            <input type="file" name="template_po" class="form-control" accept=".docx">
+            <small class="text-muted">Kosongkan jika tidak ingin mengganti template.</small>
           </div>
 
           <button type="submit" class="btn btn-primary">Update</button>

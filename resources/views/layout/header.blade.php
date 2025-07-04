@@ -254,7 +254,7 @@
         </li>
         <li class="nav-item {{ active_class(['email/*', 'apps/*']) }}">
           <a href="#" class="nav-link">
-            <i class="link-icon" data-feather="mail"></i>
+            <i class="link-icon" data-feather="folder"></i>
             <span class="menu-title">Daftar / List</span>
             <i class="link-arrow"></i>
           </a>
@@ -267,6 +267,29 @@
               <li class="nav-item"><a class="nav-link {{ active_class(['email/inbox']) }}" href="{{ url('/barang/') }}">Daftar Barang</a></li>
               <li class="nav-item"><a class="nav-link {{ active_class(['email/inbox']) }}" href="{{ url('/coa/') }}">Daftar Coa</a></li>
             </ul>
+          </div>
+        </li>
+        <li class="nav-item {{ active_class(['charts/*', 'tables/*']) }}">
+          <a href="#" class="nav-link">
+            <i class="link-icon" data-feather="pie-chart"></i>
+            <span class="menu-title">Modul</span>
+            <i class="link-arrow"></i>
+          </a>
+          <div class="submenu">
+            <div class="row">
+              <div class="col-md-6">
+                <ul class="submenu-item pe-0">
+                  <li class="category-heading">Pembelian</li>
+                  <li class="nav-item"><a href="{{ url('/po/') }}" class="nav-link {{ active_class(['charts/apex']) }}">Pesanan Pembelian</a></li>
+                </ul>
+              </div>
+              <div class="col-md-6">
+                <ul class="submenu-item ps-0">
+                  <li class="category-heading">Penjualan</li>
+                  <li class="nav-item"><a href="{{ url('/so/') }}" class="nav-link {{ active_class(['tables/basic-tables']) }}">Pesanan Penjualan</a></li>
+                </ul>
+              </div>
+            </div>
           </div>
         </li>
         <li class="nav-item mega-menu {{ active_class(['ui-components/*', 'advanced-ui/*']) }}">
