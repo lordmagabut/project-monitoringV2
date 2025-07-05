@@ -32,8 +32,8 @@ class PerusahaanController extends Controller
             'nama_perusahaan' => 'required',
             'alamat' => 'required',
             'email' => 'nullable|email',
-            'no_telp' => 'nullable|numeric',
-            'npwp' => 'nullable|numeric',
+            'no_telp' => 'nullable',
+            'npwp' => 'nullable',
             'tipe_perusahaan' => 'required|in:UMKM,Kontraktor,Perorangan',
             'template_po' => 'nullable|file|mimes:docx|max:20480',
         ]);
@@ -79,8 +79,8 @@ class PerusahaanController extends Controller
             'nama_perusahaan' => 'required',
             'alamat' => 'required',
             'email' => 'nullable|email',
-            'no_telp' => 'nullable|numeric',
-            'npwp' => 'nullable|numeric',
+            'no_telp' => 'nullable',
+            'npwp' => 'nullable',
             'tipe_perusahaan' => 'required|in:UMKM,Kontraktor,Perorangan',
             'template_po' => 'nullable|file|mimes:doc,docx|max:20480',
         ]);

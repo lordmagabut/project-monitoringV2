@@ -1,20 +1,24 @@
 @extends('layout.master')
 
+@push('plugin-styles')
+<link href="{{ asset('assets/plugins/datatables-net-bs5/dataTables.bootstrap5.css') }}" rel="stylesheet" />
+<link href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.bootstrap5.min.css" rel="stylesheet" />
+@endpush
+
 @section('content')
 <div class="row">
   <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
         <h4 class="card-title">Daftar Supplier</h4>
-
         @if(session('success'))
           <div class="alert alert-success">{{ session('success') }}</div>
         @endif
-
-        <a href="{{ route('supplier.create') }}" class="btn btn-primary mb-3">+ Tambah Supplier</a>
-
+        @if(auth()->user()->buat_supplier == 1)
+          <a href="{{ route('supplier.create') }}" class="btn btn-primary mb-3">Tambah Supplier</a>
+        @endif
         <div class="table-responsive">
-          <table class="table table-hover">
+        <table id="dataTableExample" class="table">
             <thead>
               <tr>
                 <th>No</th>
@@ -34,8 +38,19 @@
                 <td>{{ $supplier->no_kontak }}</td>
                 <td>{{ $supplier->keterangan }}</td>
                 <td>
-                  <a href="{{ route('supplier.edit', $supplier->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                  <a href="{{ route('supplier.destroy', $supplier->id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus?')">Hapus</a>
+                @if(auth()->user()->edit_supplier == 1)
+                  <a href="{{ route('supplier.edit', $supplier->id) }}" class="btn btn-sm btn-primary btn-icon-text me-2">
+                            <i class="btn-icon-prepend" data-feather="edit"></i> Edit</a>
+                @endif
+                @if(auth()->user()->hapus_supplier == 1)
+                <form action="{{ route('supplier.destroy', $supplier->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin mau dihapus?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger btn-icon-text">
+                                <i class="btn-icon-prepend" data-feather="delete"></i> Hapus
+                            </button>
+                </form>
+                @endif
                 </td>
               </tr>
               @endforeach
@@ -53,3 +68,21 @@
   </div>
 </div>
 @endsection
+
+@push('plugin-scripts')
+<script src="{{ asset('assets/plugins/datatables-net/jquery.dataTables.js') }}"></script>
+<script src="{{ asset('assets/plugins/datatables-net-bs5/dataTables.bootstrap5.js') }}"></script>
+<script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.4.1/js/responsive.bootstrap5.min.js"></script>
+@endpush
+
+@push('custom-scripts')
+<script>
+  $(document).ready(function () {
+    $('#dataTableExample').DataTable({
+      responsive: true,
+      autoWidth: false
+    });
+  });
+</script>
+@endpush

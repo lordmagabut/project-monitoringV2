@@ -1,8 +1,11 @@
 @extends('layout.master')
 
 @section('content')
-<div class="container mt-4">
-    <h2>Tambah Perusahaan</h2>
+<div class="row">
+  <div class="col grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+<h4 class="card-title mb-4">Form Input Perusahaan</h4>
     <form action="{{ route('perusahaan.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
@@ -48,5 +51,8 @@
         <button type="submit" class="btn btn-primary">Simpan</button>
         <a href="{{ route('perusahaan.index') }}" class="btn btn-secondary">Batal</a>
     </form>
+</div>
+</div>
+</div>
 </div>
 @endsection

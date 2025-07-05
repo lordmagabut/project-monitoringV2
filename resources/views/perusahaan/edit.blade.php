@@ -1,8 +1,11 @@
 @extends('layout.master')
 
 @section('content')
-<div class="container mt-4">
-    <h2>Edit Perusahaan</h2>
+<div class="row">
+<div class="col-lg-12 grid-margin stretch-card">
+<div class="card">
+      <div class="card-body">
+    <h4 class="card-title mb-4">Edit Perusahaan</h4>
     <form action="{{ route('perusahaan.update', $perusahaan->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
@@ -52,5 +55,8 @@
         <button type="submit" class="btn btn-primary">Update</button>
         <a href="{{ route('perusahaan.index') }}" class="btn btn-secondary">Batal</a>
     </form>
+</div>
+</div>
+</div>
 </div>
 @endsection

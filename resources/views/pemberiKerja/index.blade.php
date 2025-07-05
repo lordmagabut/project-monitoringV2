@@ -1,5 +1,10 @@
 @extends('layout.master')
 
+@push('plugin-styles')
+<link href="{{ asset('assets/plugins/datatables-net-bs5/dataTables.bootstrap5.css') }}" rel="stylesheet" />
+<link href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.bootstrap5.min.css" rel="stylesheet" />
+@endpush
+
 @section('content')
 <div class="row">
   <div class="col-lg-12 grid-margin stretch-card">
@@ -7,49 +12,69 @@
       <div class="card-body">
         <h4 class="card-title">Daftar Pemberi Kerja</h4>
 
-        @if(session('success'))
-          <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
 
-        <a href="{{ route('pemberiKerja.create') }}" class="btn btn-primary mb-3">+ Tambah Pemberi Kerja</a>
+    @if(auth()->user()->buat_pemberikerja == 1)
+        <a href="{{ route('pemberiKerja.create') }}" class="btn btn-primary mb-3">Tambah Pemberi Kerja</a>
+    @endif
 
-        <div class="table-responsive">
-          <table class="table table-hover">
+    <table id="dataTableExample" class="table table-hover align-middle display nowrap" style="width:100%">
             <thead>
-              <tr>
-                <th>No</th>
-                <th>Nama Pemberi Kerja</th>
-                <th>PIC</th>
-                <th>No Kontak</th>
-                <th>Alamat</th>
-                <th>Aksi</th>
-              </tr>
+                <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>Alamat</th>
+                    <th>Aksi</th>
+                </tr>
             </thead>
             <tbody>
-              @foreach($pemberiKerja as $index => $item)
-              <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $item->nama_pemberi_kerja }}</td>
-                <td>{{ $item->pic }}</td>
-                <td>{{ $item->no_kontak }}</td>
-                <td>{{ $item->alamat }}</td>
-                <td>
-                  <a href="{{ route('pemberiKerja.edit', $item->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                  <a href="{{ route('pemberiKerja.destroy', $item->id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus?')">Hapus</a>
-                </td>
-              </tr>
-              @endforeach
-              @if($pemberiKerja->isEmpty())
-              <tr>
-                <td colspan="6" class="text-center">Data tidak ditemukan</td>
-              </tr>
-              @endif
-            </tbody>
-          </table>
-        </div>
+                @foreach($pemberiKerjas as $index => $pemberiKerja)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $pemberiKerja->nama_pemberi_kerja }}</td>
+                        <td>{{ $pemberiKerja->alamat }}</td>
+                        <td class="text-nowrap">
+                            @if(auth()->user()->edit_pemberikerja == 1)
+                                <a href="{{ route('pemberiKerja.edit', $pemberiKerja->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                            @endif
 
-      </div>
+                            @if(auth()->user()->hapus_pemberikerja == 1)
+                                <form action="{{ route('pemberiKerja.destroy', $pemberiKerja->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin mau dihapus?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                </form>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
-  </div>
+</div>
+</div>
+</div>
 </div>
 @endsection
+
+@push('plugin-scripts')
+<script src="{{ asset('assets/plugins/datatables-net/jquery.dataTables.js') }}"></script>
+<script src="{{ asset('assets/plugins/datatables-net-bs5/dataTables.bootstrap5.js') }}"></script>
+<script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.4.1/js/responsive.bootstrap5.min.js"></script>
+@endpush
+
+@push('custom-scripts')
+<script>
+  $(document).ready(function () {
+    $('#dataTableExample').DataTable({
+      responsive: true,
+      autoWidth: false
+    });
+  });
+</script>
+@endpush

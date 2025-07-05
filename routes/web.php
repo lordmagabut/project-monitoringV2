@@ -58,20 +58,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/proyek/store', [ProyekController::class, 'store'])->name('proyek.store');
 
     // Pemberi Kerja
-    Route::get('/pemberiKerja', [PemberiKerjaController::class, 'index'])->name('pemberiKerja.index');
-    Route::get('/pemberiKerja/create', [PemberiKerjaController::class, 'create'])->name('pemberiKerja.create');
-    Route::post('/pemberiKerja/store', [PemberiKerjaController::class, 'store'])->name('pemberiKerja.store');
-    Route::get('/pemberiKerja/{id}/edit', [PemberiKerjaController::class, 'edit'])->name('pemberiKerja.edit');
-    Route::post('/pemberiKerja/{id}/update', [PemberiKerjaController::class, 'update'])->name('pemberiKerja.update');
-    Route::get('/pemberiKerja/{id}/delete', [PemberiKerjaController::class, 'destroy'])->name('pemberiKerja.destroy');
-
+    Route::resource('pemberiKerja', PemberiKerjaController::class)->middleware('cek_akses_pemberi_kerja');
     // Supplier
-    Route::get('/supplier', [SupplierController::class, 'index'])->name('supplier.index');
-    Route::get('/supplier/create', [SupplierController::class, 'create'])->name('supplier.create');
-    Route::post('/supplier/store', [SupplierController::class, 'store'])->name('supplier.store');
-    Route::get('/supplier/{id}/edit', [SupplierController::class, 'edit'])->name('supplier.edit');
-    Route::post('/supplier/{id}/update', [SupplierController::class, 'update'])->name('supplier.update');
-    Route::get('/supplier/{id}/delete', [SupplierController::class, 'destroy'])->name('supplier.destroy');
+    Route::resource('supplier', \App\Http\Controllers\SupplierController::class)
+    ->middleware('cek_akses_supplier');
 
     // Perusahaan
     Route::resource('perusahaan', \App\Http\Controllers\PerusahaanController::class)

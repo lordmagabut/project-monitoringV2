@@ -2,23 +2,13 @@
 
 @section('content')
 <div class="row">
-  <div class="col-lg-8 grid-margin stretch-card">
+  <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
         <h4 class="card-title mb-4">Edit Supplier</h4>
-
-        @if($errors->any())
-          <div class="alert alert-danger">
-            <ul class="mb-0">
-              @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-              @endforeach
-            </ul>
-          </div>
-        @endif
-
-        <form action="{{ route('supplier.update', $supplier->id) }}" method="POST">
-          @csrf
+        <form action="{{ route('supplier.update', $supplier->id) }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
           <div class="mb-3">
             <label class="form-label">Nama Supplier</label>
             <input type="text" name="nama_supplier" class="form-control" value="{{ $supplier->nama_supplier }}" required>

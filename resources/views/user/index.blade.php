@@ -5,12 +5,6 @@
 @endpush
 
 @section('content')
-<nav class="page-breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="#">User Manager</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Data User</li>
-  </ol>
-</nav>
 
 <div class="row">
   <div class="col-md-12 grid-margin stretch-card">
@@ -22,10 +16,10 @@
           <div class="alert alert-success">{{ session('success') }}</div>
         @endif
 
-        <a href="{{ route('user.create') }}" class="btn btn-primary mb-3">+ Tambah User Baru</a>
+        <a href="{{ route('user.create') }}" class="btn btn-primary mb-3">Tambah User</a>
 
         <div class="table-responsive">
-          <table id="dataTableExample" class="table table-bordered table-hover">
+          <table id="dataTableExample" class="table table-hover align-middle">
             <thead>
               <tr>
                 <th class="text-center">No</th>
@@ -33,6 +27,7 @@
                 <th class="text-center">Perusahaan</th>
                 <th class="text-center">Pemberi Kerja</th>
                 <th class="text-center">Proyek</th>
+                <th class="text-center">Supplier</th>
                 <th class="text-center">Barang</th>
                 <th class="text-center">COA</th>
                 <th class="text-center">PO</th>
@@ -56,6 +51,9 @@
                     <i class="mdi {{ $user->akses_proyek ? 'mdi-check-circle text-success' : 'mdi-close-circle text-danger' }}"></i>
                   </td>
                   <td class="text-center">
+                    <i class="mdi {{ $user->akses_supplier ? 'mdi-check-circle text-success' : 'mdi-close-circle text-danger' }}"></i>
+                  </td>
+                  <td class="text-center">
                     <i class="mdi {{ $user->akses_barang ? 'mdi-check-circle text-success' : 'mdi-close-circle text-danger' }}"></i>
                   </td>
                   <td class="text-center">
@@ -69,12 +67,16 @@
                   </td>
 
                   <td>
-                    <a href="{{ route('user.edit.permission', $user->id) }}" class="btn btn-warning btn-sm mb-1">Edit</a>
-                    <a href="{{ route('user.reset.password', $user->id) }}" class="btn btn-danger btn-sm mb-1">Reset</a>
+                    <a href="{{ route('user.edit.permission', $user->id) }}" class="btn btn-sm btn-primary btn-icon-text me-2">
+                            <i class="btn-icon-prepend" data-feather="edit"></i>Edit</a>
+                    <a href="{{ route('user.reset.password', $user->id) }}" class="btn btn-sm btn-primary btn-icon-text me-2">
+                            <i class="btn-icon-prepend" data-feather="alert-circle"></i>Reset</a>
                     <form action="{{ route('user.destroy', $user->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus user ini?')">
                       @csrf
                       @method('DELETE')
-                      <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                      <button type="submit" class="btn btn-sm btn-danger btn-icon-text">
+                                <i class="btn-icon-prepend" data-feather="delete"></i> Hapus
+                            </button>
                     </form>
                   </td>
                 </tr>

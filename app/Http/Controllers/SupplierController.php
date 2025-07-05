@@ -15,11 +15,17 @@ class SupplierController extends Controller
 
     public function create()
     {
+        if (auth()->user()->buat_supplier != 1) {
+            abort(403, 'Anda tidak memiliki izin untuk menambah perusahaan.');
+        }
         return view('supplier.create');
     }
 
     public function store(Request $request)
     {
+        if (auth()->user()->buat_supplier != 1) {
+            abort(403, 'Anda tidak memiliki izin untuk menambah perusahaan.');
+        }
         $request->validate([
             'nama_supplier' => 'required',
             'pic' => 'required',
@@ -34,12 +40,18 @@ class SupplierController extends Controller
 
     public function edit($id)
     {
+        if (auth()->user()->edit_supplier != 1) {
+            abort(403, 'Anda tidak memiliki izin untuk menambah perusahaan.');
+        }
         $supplier = Supplier::findOrFail($id);
         return view('supplier.edit', compact('supplier'));
     }
 
     public function update(Request $request, $id)
     {
+        if (auth()->user()->edit_supplier != 1) {
+            abort(403, 'Anda tidak memiliki izin untuk menambah perusahaan.');
+        }
         $request->validate([
             'nama_supplier' => 'required',
             'pic' => 'required',
@@ -55,6 +67,9 @@ class SupplierController extends Controller
 
     public function destroy($id)
     {
+        if (auth()->user()->hapus_supplier != 1) {
+            abort(403, 'Anda tidak memiliki izin untuk menambah perusahaan.');
+        }
         $supplier = Supplier::findOrFail($id);
         $supplier->delete();
 
