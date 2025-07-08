@@ -41,24 +41,26 @@ Route::middleware(['auth'])->group(function () {
 
     // PO
     Route::get('/po/{id}/print', [PoController::class, 'print'])->name('po.print');
-    Route::resource('po', PoController::class);
+    Route::put('/po/revisi/{id}', [PoController::class, 'revisi'])->name('po.revisi');
+    Route::resource('po', \App\Http\Controllers\PoController::class)
+    ->middleware('cek_akses_po');
+
 
     // COA
-    Route::resource('coa', CoaController::class);
+    Route::resource('coa', \App\Http\Controllers\CoaController::class)
+    ->middleware('cek_akses_coa');
 
     // Barang
-    Route::resource('barang', BarangController::class);
+    Route::resource('barang', \App\Http\Controllers\BarangController::class)
+    ->middleware('cek_akses_barang');
 
     // Proyek
-    Route::get('/proyek/{id}/delete', [ProyekController::class, 'destroy'])->name('proyek.destroy');
-    Route::get('/proyek/{id}/edit', [ProyekController::class, 'edit'])->name('proyek.edit');
-    Route::post('/proyek/{id}/update', [ProyekController::class, 'update'])->name('proyek.update');
-    Route::get('/proyek', [ProyekController::class, 'index'])->name('proyek.index');
-    Route::get('/proyek/create', [ProyekController::class, 'create'])->name('proyek.create');
-    Route::post('/proyek/store', [ProyekController::class, 'store'])->name('proyek.store');
+    Route::resource('proyek', \App\Http\Controllers\ProyekController::class)
+    ->middleware('cek_akses_proyek');
 
     // Pemberi Kerja
     Route::resource('pemberiKerja', PemberiKerjaController::class)->middleware('cek_akses_pemberi_kerja');
+    
     // Supplier
     Route::resource('supplier', \App\Http\Controllers\SupplierController::class)
     ->middleware('cek_akses_supplier');

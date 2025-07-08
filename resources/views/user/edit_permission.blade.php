@@ -189,8 +189,16 @@
                                             <label class="form-check-label" for="edit_po">Edit PO</label>
                                         </div>
                                         <div class="form-check mb-2">
-                                            <input type="checkbox" name="hapus_po" value="1" class="form-check-input" id="hapus_po" {{ $user->hapus_proyek ? 'checked' : '' }}>
+                                            <input type="checkbox" name="hapus_po" value="1" class="form-check-input" id="hapus_po" {{ $user->hapus_po ? 'checked' : '' }}>
                                             <label class="form-check-label" for="hapus_po">Hapus PO</label> 
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input type="checkbox" name="revisi_po" value="1" class="form-check-input" id="revisi_po" {{ $user->revisi_po ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="revisi_po">Revisi PO</label> 
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input type="checkbox" name="print_po" value="1" class="form-check-input" id="print_po" {{ $user->print_po ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="print_po">Print PO</label> 
                                         </div>
                                     </div>
 

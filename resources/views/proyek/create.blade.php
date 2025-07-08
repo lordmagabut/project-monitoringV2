@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="row">
-  <div class="col-lg-8 grid-margin stretch-card">
+  <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
         <h4 class="card-title mb-4">Form Input Proyek</h4>
@@ -19,6 +19,7 @@
 
         <form action="{{ route('proyek.store') }}" method="POST" enctype="multipart/form-data">
           @csrf
+          @method('PUT')
           <div class="mb-3">
     <label class="form-label">Perusahaan</label>
     <select name="perusahaan_id" class="form-select" required>
@@ -64,6 +65,7 @@
             <select name="jenis_proyek" class="form-select" required>
               <option value="kontraktor">Kontraktor</option>
               <option value="cost and fee">Cost and Fee</option>
+              <option value="cost and fee">Office</option>
             </select>
           </div>
 

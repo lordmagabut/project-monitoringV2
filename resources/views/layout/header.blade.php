@@ -3,7 +3,7 @@
     <div class="container">
       <div class="navbar-content">
         <a href="#" class="navbar-brand">
-          Noble<span>UI</span>
+          @Nanda<span>Purwanda</span>
         </a>
         <ul class="navbar-nav">       
           <li class="nav-item dropdown">

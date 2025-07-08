@@ -2,23 +2,14 @@
 
 @section('content')
 <div class="row">
-  <div class="col-lg-8 grid-margin stretch-card">
+  <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
         <h4 class="card-title mb-4">Edit Proyek</h4>
-
-        @if($errors->any())
-          <div class="alert alert-danger">
-            <ul class="mb-0">
-              @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-              @endforeach
-            </ul>
-          </div>
-        @endif
-
         <form action="{{ route('proyek.update', $proyek->id) }}" method="POST" enctype="multipart/form-data">
           @csrf
+          @method('PUT')
+
           <select name="perusahaan_id" class="form-select" required>
     @foreach($perusahaan as $p)
         <option value="{{ $p->id }}" {{ $proyek->perusahaan_id == $p->id ? 'selected' : '' }}>
@@ -67,6 +58,7 @@
             <select name="jenis_proyek" class="form-select" required>
               <option value="kontraktor" {{ $proyek->jenis_proyek == 'kontraktor' ? 'selected' : '' }}>Kontraktor</option>
               <option value="cost and fee" {{ $proyek->jenis_proyek == 'cost and fee' ? 'selected' : '' }}>Cost and Fee</option>
+              <option value="office" {{ $proyek->jenis_proyek == 'office' ? 'selected' : '' }}>Office</option>
             </select>
           </div>
 

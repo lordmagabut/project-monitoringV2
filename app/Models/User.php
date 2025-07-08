@@ -38,6 +38,8 @@ class User extends Authenticatable
         'buat_po',
         'edit_po',
         'hapus_po',
+        'revisi_po',
+        'print_po',
         'akses_user_manager', 
     ];
 

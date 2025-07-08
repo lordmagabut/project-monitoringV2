@@ -11,7 +11,9 @@ class Barang extends Model
     protected $fillable = [
         'kode_barang',
         'nama_barang',
-        'tipe_id'
+        'tipe_id',
+        'coa_persediaan_id',
+        'coa_beban_id'
     ];
 
     public function tipe()

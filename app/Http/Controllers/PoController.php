@@ -14,45 +14,17 @@ use NcJoes\OfficeConverter\OfficeConverter;
 use PhpOffice\PhpWord\TemplateProcessor;
 
 class PoController extends Controller
-{public function index(Request $request)
+{
+    public function index()
     {
-        $query = PO::query()->with(['supplier', 'perusahaan', 'proyek']);
-    
-        if ($request->id_supplier) {
-            $query->where('id_supplier', $request->id_supplier);
-        }
-    
-        if ($request->id_perusahaan) {
-            $query->where('id_perusahaan', $request->id_perusahaan);
-        }
-    
-        if ($request->search) {
-            $keywords = explode(' ', $request->search);
-    
-            $query->where(function($q) use ($keywords) {
-                foreach ($keywords as $word) {
-                    $q->where(function($subQuery) use ($word) {
-                        $subQuery->where('no_po', 'like', '%' . $word . '%')
-                                 ->orWhere('nama_supplier', 'like', '%' . $word . '%')
-                                 ->orWhereHas('proyek', function($q2) use ($word) {
-                                     $q2->where('nama_proyek', 'like', '%' . $word . '%');
-                                 });
-                    });
-                }
-            });
-        }
-    
-        $po = $query->orderBy('tanggal', 'desc')->paginate(10);
-    
-        $suppliers = Supplier::all();
-        $perusahaan = Perusahaan::all();
-    
-        return view('po.index', compact('po', 'suppliers', 'perusahaan'));
+        $po = Po::with(['proyek', 'perusahaan'])->orderBy('tanggal', 'desc')->get();
+        return view('po.index', compact('po'));
     }
-    
-
     public function create()
-    {
+    {   
+        if (auth()->user()->buat_po != 1) {
+            abort(403, 'Anda tidak memiliki izin.');
+        }
         $suppliers = Supplier::all();
         $perusahaan = Perusahaan::all();
         $proyek = Proyek::all();
@@ -63,6 +35,9 @@ class PoController extends Controller
 
     public function store(Request $request)
     {
+        if (auth()->user()->buat_po != 1) {
+            abort(403, 'Anda tidak memiliki izin.');
+        }
         $request->validate([
             'no_po' => 'required',
             'tanggal' => 'required',
@@ -123,12 +98,19 @@ class PoController extends Controller
             ]);
         }
 
-        return redirect()->route('po.index')->with('success', 'PO berhasil disimpan.');
+    // Cek tombol yang ditekan
+    if ($request->submit == 'simpan') {
+        return redirect()->route('po.index')->with('success', 'PO berhasil disimpan');
+    } elseif ($request->submit == 'simpan_lanjut') {
+        return redirect()->route('po.create')->with('success', 'PO berhasil disimpan, silakan input PO baru');
+    }
     }
 
     public function edit($id)
     {
-
+        if (auth()->user()->edit_po != 1) {
+            abort(403, 'Anda tidak memiliki izin.');
+        }
         $po = Po::with('details')->findOrFail($id);
         
         if ($po->status == 'sedang diproses') {
@@ -145,6 +127,9 @@ class PoController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (auth()->user()->edit_po != 1) {
+            abort(403, 'Anda tidak memiliki izin.');
+        }
         $request->validate([
             'no_po' => 'required',
             'tanggal' => 'required',
@@ -206,6 +191,9 @@ class PoController extends Controller
         
     public function destroy($id)
     {
+        if (auth()->user()->hapus_po != 1) {
+            abort(403, 'Anda tidak memiliki izin.');
+        }
         $po = Po::findOrFail($id);
         $po->details()->delete();
         $po->delete();
@@ -215,6 +203,9 @@ class PoController extends Controller
 
     public function print($id)
 {
+    if (auth()->user()->print_po != 1) {
+        abort(403, 'Anda tidak memiliki izin.');
+    }
     $po = Po::with(['details', 'perusahaan', 'proyek','supplier'])->findOrFail($id);
 
     if ($po->status == 'draft') {
@@ -296,5 +287,32 @@ class PoController extends Controller
 
     return redirect()->route('po.index')->with('success', 'PO berhasil dicetak.');
 }
+
+public function revisi($id)
+{
+    if (auth()->user()->revisi_po != 1) {
+        abort(403, 'Anda tidak memiliki izin.');
+    }
+
+    $po = Po::findOrFail($id);
+
+    if ($po->status != 'sedang diproses') {
+        return redirect()->route('po.index')->with('error', 'Hanya PO yang sedang diproses yang bisa direvisi.');
+    }
+
+    // Hapus file dari storage jika ada
+    if ($po->file_path && \Storage::exists('public/' . $po->file_path)) {
+        \Storage::delete('public/' . $po->file_path);
+    }
+
+    // Update status PO menjadi draft dan kosongkan file_path
+    $po->update([
+        'status' => 'draft',
+        'file_path' => null
+    ]);
+
+    return redirect()->route('po.index')->with('success', 'PO berhasil direvisi dan status dikembalikan menjadi draft.');
+}
+
     
 }

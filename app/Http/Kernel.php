@@ -66,6 +66,10 @@ class Kernel extends HttpKernel
         'cek_akses_perusahaan' => \App\Http\Middleware\CekAksesPerusahaan::class,
         'cek_akses_supplier' => \App\Http\Middleware\CekAksesSupplier::class,
         'cek_akses_pemberi_kerja' => \App\Http\Middleware\CekAksesPemberiKerja::class,
+        'cek_akses_proyek' => \App\Http\Middleware\CekAksesProyek::class,
+        'cek_akses_barang' => \App\Http\Middleware\CekAksesBarang::class,
+        'cek_akses_coa' => \App\Http\Middleware\CekAksesCoa::class,
+        'cek_akses_po' => \App\Http\Middleware\CekAksesPo::class,
     ];
 
     /**

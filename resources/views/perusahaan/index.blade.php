@@ -11,17 +11,12 @@
     <div class="card">
       <div class="card-body">
         <h4 class="card-title">Daftar Perusahaan</h4>
-
         @if(session('success'))
-          <div class="alert alert-success">
-            {{ session('success') }}
-          </div>
+          <div class="alert alert-success">{{ session('success') }}</div>
         @endif
-
         @if(auth()->user()->buat_perusahaan == 1)
           <a href="{{ route('perusahaan.create') }}" class="btn btn-primary mb-3">Tambah Perusahaan</a>
         @endif
-
         <table id="dataTableExample" class="table table-hover align-middle display nowrap" style="width:100%">
           <thead>
             <tr>
@@ -49,7 +44,6 @@
                       <i class="btn-icon-prepend" data-feather="edit"></i> Edit
                     </a>
                   @endif
-
                   @if(auth()->user()->hapus_perusahaan == 1)
                     <form action="{{ route('perusahaan.destroy', $perusahaan->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin mau dihapus?')">
                       @csrf
@@ -64,7 +58,6 @@
             @endforeach
           </tbody>
         </table>
-
       </div>
     </div>
   </div>

@@ -9,33 +9,18 @@ use Illuminate\Http\Request;
 
 class ProyekController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $query = Proyek::query()->with(['perusahaan', 'pemberiKerja']);
-    
-        if ($request->id_perusahaan) {
-            $query->where('id_perusahaan', $request->id_perusahaan);
-        }
-    
-        if ($request->id_pemberi_kerja) {
-            $query->where('pemberi_kerja_id', $request->id_pemberi_kerja);
-        }
-    
-        if ($request->search) {
-            $query->where('nama_proyek', 'like', '%' . $request->search . '%')
-                  ->orWhere('no_spk', 'like', '%' . $request->search . '%');
-        }
-    
-        $proyeks = $query->paginate(10);
-        $perusahaans = Perusahaan::all();
-        $pemberiKerjas = PemberiKerja::all();
-    
-        return view('proyek.index', compact('proyeks', 'perusahaans', 'pemberiKerjas'));
+        $proyeks = Proyek::all();   
+        return view('proyek.index', compact('proyeks'));
     }
     
 
     public function create()
-    {
+    {   
+        if (auth()->user()->buat_proyek != 1) {
+            abort(403, 'Anda tidak memiliki izin untuk menambah proyek.');
+        }
         $perusahaan = Perusahaan::all();
         $pemberiKerja = PemberiKerja::all();
         return view('proyek.create', compact('perusahaan', 'pemberiKerja'));
@@ -43,6 +28,9 @@ class ProyekController extends Controller
 
     public function store(Request $request)
     {
+        if (auth()->user()->buat_proyek != 1) {
+            abort(403, 'Anda tidak memiliki izin untuk menambah proyek.');
+        }
         $request->validate([
             'perusahaan_id' => 'required|exists:perusahaan,id',
             'nama_proyek' => 'required',
@@ -73,6 +61,9 @@ class ProyekController extends Controller
 
     public function edit($id)
     {
+        if (auth()->user()->edit_proyek != 1) {
+            abort(403, 'Anda tidak memiliki izin untuk edit proyek.');
+        }
         $proyek = Proyek::findOrFail($id);
         $perusahaan = Perusahaan::all();
         $pemberiKerja = PemberiKerja::all();
@@ -81,6 +72,9 @@ class ProyekController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (auth()->user()->edit_proyek != 1) {
+            abort(403, 'Anda tidak memiliki izin untuk edit proyek.');
+        }
         $request->validate([
             'perusahaan_id' => 'required|exists:perusahaan,id',
             'nama_proyek' => 'required',
@@ -113,6 +107,9 @@ class ProyekController extends Controller
 
     public function destroy($id)
     {
+        if (auth()->user()->hapus_proyek != 1) {
+            abort(403, 'Anda tidak memiliki izin untuk edit proyek.');
+        }
         $proyek = Proyek::findOrFail($id);
 
         if ($proyek->file_spk && \Storage::disk('public')->exists($proyek->file_spk)) {

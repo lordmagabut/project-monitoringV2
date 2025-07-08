@@ -27,6 +27,8 @@
                 <tr>
                     <th>No</th>
                     <th>Nama</th>
+                    <th>PIC</th>
+                    <th>No Kontak</th>
                     <th>Alamat</th>
                     <th>Aksi</th>
                 </tr>
@@ -36,17 +38,22 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $pemberiKerja->nama_pemberi_kerja }}</td>
+                        <td>{{ $pemberiKerja->pic }}</td>
+                        <td>{{ $pemberiKerja->no_kontak }}</td>
                         <td>{{ $pemberiKerja->alamat }}</td>
                         <td class="text-nowrap">
                             @if(auth()->user()->edit_pemberikerja == 1)
-                                <a href="{{ route('pemberiKerja.edit', $pemberiKerja->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                <a href="{{ route('pemberiKerja.edit', $pemberiKerja->id) }}" class="btn btn-sm btn-primary btn-icon-text me-2">
+                      <i class="btn-icon-prepend" data-feather="edit"></i> Edit</a>
                             @endif
 
                             @if(auth()->user()->hapus_pemberikerja == 1)
                                 <form action="{{ route('pemberiKerja.destroy', $pemberiKerja->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin mau dihapus?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                    <button type="submit" class="btn btn-sm btn-danger btn-icon-text">
+                        <i class="btn-icon-prepend" data-feather="delete"></i> Hapus
+                      </button>
                                 </form>
                             @endif
                         </td>

@@ -15,12 +15,18 @@ class CoaController extends Controller
 
     public function create()
     {
+        if (auth()->user()->buat_coa != 1) {
+            abort(403, 'Anda tidak memiliki izin.');
+        }
         $parentAkun = Coa::all();
         return view('coa.create', compact('parentAkun'));
     }
 
     public function store(Request $request)
     {
+        if (auth()->user()->buat_coa != 1) {
+            abort(403, 'Anda tidak memiliki izin.');
+        }
         $request->validate([
             'no_akun' => 'required',
             'nama_akun' => 'required',
@@ -39,6 +45,9 @@ class CoaController extends Controller
 
     public function edit($id)
     {
+        if (auth()->user()->edit_coa != 1) {
+            abort(403, 'Anda tidak memiliki izin.');
+        }
         $coa = Coa::findOrFail($id);
         $parentAkun = Coa::where('id', '!=', $id)->get();
         return view('coa.edit', compact('coa', 'parentAkun'));
@@ -46,6 +55,9 @@ class CoaController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (auth()->user()->edit_coa != 1) {
+            abort(403, 'Anda tidak memiliki izin.');
+        }
         $request->validate([
             'no_akun' => 'required',
             'nama_akun' => 'required',
@@ -66,6 +78,9 @@ class CoaController extends Controller
 
     public function destroy($id)
     {
+        if (auth()->user()->hapus_coa != 1) {
+            abort(403, 'Anda tidak memiliki izin.');
+        }
         $coa = Coa::findOrFail($id);
         $coa->delete();
 

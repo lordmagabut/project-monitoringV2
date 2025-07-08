@@ -12,7 +12,7 @@ class Coa extends Model
         'no_akun',
         'nama_akun',
         'parent_id',
-        'tipe'
+        'tipe',
     ];
 
     public function parent()

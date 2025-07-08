@@ -5,30 +5,30 @@
     <div class="col-lg-12 grid-margin stretch-card">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title">CREATE PO</h4>
+                <h4 class="card-title mb-4">Form Input PO</h4>
 
                 <form action="{{ route('po.store') }}" method="POST">
                     @csrf
 
-                    <div class="row mb-3">
+                    <div class="row g-3 mb-4">
                         <div class="col-md-4">
-                            <label>Perusahaan</label>
+                            <label class="form-label">Perusahaan</label>
                             <input type="text" id="namaPerusahaan" class="form-control" readonly>
                             <input type="hidden" name="id_perusahaan" id="idPerusahaan" required>
                         </div>
                         <div class="col-md-4">
-                            <label>Tanggal</label>
+                            <label class="form-label">Tanggal</label>
                             <input type="date" name="tanggal" class="form-control" required>
                         </div>
                         <div class="col-md-4">
-                            <label>No. PO</label>
+                            <label class="form-label">No. PO</label>
                             <input type="text" name="no_po" class="form-control" required>
                         </div>
                     </div>
 
-                    <div class="row mb-3">
+                    <div class="row g-3 mb-4">
                         <div class="col-md-6">
-                            <label>Supplier</label>
+                            <label class="form-label">Supplier</label>
                             <select name="id_supplier" class="form-select" required>
                                 <option value="">-- Pilih Supplier --</option>
                                 @foreach($suppliers as $s)
@@ -37,7 +37,7 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label>Proyek</label>
+                            <label class="form-label">Proyek</label>
                             <select name="id_proyek" id="proyekSelect" class="form-select" required>
                                 <option value="">-- Pilih Proyek --</option>
                                 @foreach($proyek as $pr)
@@ -53,17 +53,17 @@
                         </div>
                     </div>
 
-                    <h5>Detail Pesanan</h5>
-                    <table class="table table-bordered" id="barang-table">
-                        <thead>
+                    <h5 class="mb-3">Detail Pesanan</h5>
+                    <table class="table table-bordered table-sm align-middle" id="barang-table">
+                        <thead class="table-light">
                             <tr>
-                                <th>Kode Item</th>
+                                <th style="width: 15%;">Kode Item</th>
                                 <th>Uraian</th>
-                                <th>Qty</th>
-                                <th>UOM</th>
-                                <th>Harga</th>
-                                <th>Total</th>
-                                <th>Aksi</th>
+                                <th style="width: 10%;">Qty</th>
+                                <th style="width: 10%;">UOM</th>
+                                <th style="width: 15%;">Harga</th>
+                                <th style="width: 15%;">Total</th>
+                                <th style="width: 10%;">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="detail-barang">
@@ -72,7 +72,7 @@
                                     <select name="items[0][kode_item]" class="form-select kode-item" required>
                                         <option value="">-- Pilih Barang --</option>
                                         @foreach($barang as $b)
-                                            <option value="{{ $b->kode_barang }}" data-uraian="{{ $b->nama_barang }}">{{ $b->kode_barang }}</option>
+                                            <option value="{{ $b->kode_barang }}" data-uraian="{{ $b->nama_barang }}">{{ $b->kode_barang }} - {{ $b->nama_barang }}</option>
                                         @endforeach
                                     </select>
                                 </td>
@@ -85,27 +85,33 @@
                             </tr>
                         </tbody>
                     </table>
-                    <button type="button" class="btn btn-success mb-3" id="addRow">+ Tambah Item</button>
+                    <button type="button" class="btn btn-success btn-sm mb-4" id="addRow">+ Tambah Item</button>
 
-                    <div class="row mb-3">
+                    <div class="row g-3 mb-4">
                         <div class="col-md-6">
-                            <label>Diskon (%)</label>
+                            <label class="form-label">Diskon (%)</label>
                             <input type="number" name="diskon_persen" class="form-control" id="diskon-global" value="0" required>
                         </div>
                         <div class="col-md-6">
-                            <label>PPN (%)</label>
+                            <label class="form-label">PPN (%)</label>
                             <input type="number" name="ppn_persen" class="form-control" id="ppn-global" value="0" required>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label>Keterangan</label>
+                    <div class="mb-4">
+                        <label class="form-label">Keterangan</label>
                         <textarea name="keterangan" class="form-control" rows="3"></textarea>
                     </div>
 
-                    <h5>Grand Total: <span id="grandTotal" class="text-primary">Rp 0</span></h5>
+                    <div class="mb-4">
+                        <h5>Grand Total: <span id="grandTotal" class="text-primary fw-bold">Rp 0</span></h5>
+                    </div>
 
-                    <button type="submit" class="btn btn-primary">Simpan</button>
+                    <div class="text-end">
+                        <button type="submit" name="submit" value="simpan" class="btn btn-primary me-2">Simpan</button>
+                        <button type="submit" name="submit" value="simpan_lanjut" class="btn btn-success">Simpan & Lanjut</button>
+                    </div>
+
                 </form>
             </div>
         </div>
@@ -143,7 +149,7 @@
                     <select name="items[${index}][kode_item]" class="form-select kode-item" required>
                         <option value="">-- Pilih Barang --</option>
                         @foreach($barang as $b)
-                            <option value="{{ $b->kode_barang }}" data-uraian="{{ $b->nama_barang }}">{{ $b->kode_barang }}</option>
+                            <option value="{{ $b->kode_barang }}" data-uraian="{{ $b->nama_barang }}">{{ $b->kode_barang }} - {{ $b->nama_barang }}</option>
                         @endforeach
                     </select>
                 </td>
@@ -175,14 +181,14 @@
             hitungTotal();
         }
     });
+
     document.getElementById('proyekSelect').addEventListener('change', function () {
-    let selectedOption = this.options[this.selectedIndex];
-    let idPerusahaan = selectedOption.getAttribute('data-id-perusahaan');
-    let namaPerusahaan = selectedOption.getAttribute('data-nama-perusahaan');
+        let selectedOption = this.options[this.selectedIndex];
+        let idPerusahaan = selectedOption.getAttribute('data-id-perusahaan');
+        let namaPerusahaan = selectedOption.getAttribute('data-nama-perusahaan');
 
-    document.getElementById('idPerusahaan').value = idPerusahaan || '';
-    document.getElementById('namaPerusahaan').value = namaPerusahaan || '';
-});
-
+        document.getElementById('idPerusahaan').value = idPerusahaan || '';
+        document.getElementById('namaPerusahaan').value = namaPerusahaan || '';
+    });
 </script>
 @endsection

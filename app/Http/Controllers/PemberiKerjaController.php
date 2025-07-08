@@ -30,11 +30,15 @@ class PemberiKerjaController extends Controller
 
         $request->validate([
             'nama_pemberi_kerja' => 'required',
-            'alamat' => 'required',
+            'pic' => 'nullable',
+            'no_kontak' => 'nullable',
+            'alamat' => 'nullable',
         ]);
 
         PemberiKerja::create([
             'nama_pemberi_kerja' => $request->nama_pemberi_kerja,
+            'pic' => $request->pic,
+            'no_kontak' => $request->no_kontak,
             'alamat' => $request->alamat,
         ]);
 
@@ -59,13 +63,17 @@ class PemberiKerjaController extends Controller
 
         $request->validate([
             'nama_pemberi_kerja' => 'required',
-            'alamat' => 'required',
+            'pic' => 'nullable',
+            'no_kontak' => 'nullable',
+            'alamat' => 'nullable',
         ]);
 
         $pemberiKerja = PemberiKerja::findOrFail($id);
 
         $pemberiKerja->update([
             'nama_pemberi_kerja' => $request->nama_pemberi_kerja,
+            'pic' => $request->pic,
+            'no_kontak' => $request->no_kontak,
             'alamat' => $request->alamat,
         ]);
 

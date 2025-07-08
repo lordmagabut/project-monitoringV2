@@ -68,6 +68,8 @@ class UserController extends Controller
             'buat_po' => $request->buat_po ?? 0,
             'edit_po' => $request->edit_po ?? 0,
             'hapus_po' => $request->hapus_po ?? 0,
+            'revisi_po' => $request->revisi_po ?? 0,
+            'print_po' => $request->print_po ?? 0,
             'akses_user_manager' => $request->akses_user_manager ?? 0,
         ]);
 
