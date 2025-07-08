@@ -46,4 +46,12 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
     ];
+
+// User.php
+public function perusahaans()
+{
+    return $this->belongsToMany(Perusahaan::class, 'user_perusahaan', 'user_id', 'perusahaan_id');
+}
+
+    
 }

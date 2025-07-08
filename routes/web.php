@@ -9,6 +9,8 @@ use App\Http\Controllers\BarangController;
 use App\Http\Controllers\CoaController;
 use App\Http\Controllers\PoController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\JurnalController;
+use App\Http\Controllers\LaporanController;
 
 // Route Login - Tidak Perlu Proteksi
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -68,5 +70,22 @@ Route::middleware(['auth'])->group(function () {
     // Perusahaan
     Route::resource('perusahaan', \App\Http\Controllers\PerusahaanController::class)
     ->middleware('cek_akses_perusahaan');
+
+    // Jurnal
+    Route::get('/jurnal', [JurnalController::class, 'index'])->name('jurnal.index');
+    Route::get('/jurnal/create', [JurnalController::class, 'create'])->name('jurnal.create');
+    Route::post('/jurnal/store', [JurnalController::class, 'store'])->name('jurnal.store');
+    Route::get('/jurnal/{id}/edit', [JurnalController::class, 'edit'])->name('jurnal.edit');
+    Route::put('/jurnal/{id}', [JurnalController::class, 'update'])->name('jurnal.update');
+    Route::delete('/jurnal/{id}', [JurnalController::class, 'destroy'])->name('jurnal.destroy');
+
+    //Buku Besar
+    Route::get('/buku-besar', [\App\Http\Controllers\BukuBesarController::class, 'index'])->name('buku-besar.index');
+
+    //Neraca dan Laba Rugi
+    Route::get('/laporan/neraca', [\App\Http\Controllers\LaporanController::class, 'neraca'])->name('laporan.neraca');
+    Route::get('/laporan/laba-rugi', [\App\Http\Controllers\LaporanController::class, 'labaRugi'])->name('laporan.labaRugi');
+
+
 
 });

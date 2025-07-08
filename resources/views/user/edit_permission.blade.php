@@ -216,6 +216,19 @@
                         <label class="form-check-label" for="akses_user_manager">Akses User Manager</label>
                     </div>
 
+                    <hr>
+                    <h6 class="mt-3">Hak Akses Perusahaan</h6>
+                    @foreach ($perusahaans as $perusahaan)
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="perusahaan_ids[]" value="{{ $perusahaan->id }}"
+                                {{ $user->perusahaans->contains($perusahaan->id) ? 'checked' : '' }}>
+                            <label class="form-check-label">
+                                {{ $perusahaan->nama_perusahaan }}
+                            </label>
+                        </div>
+                    @endforeach
+
+
                     <button type="submit" class="btn btn-primary">Simpan</button>
                     <a href="{{ route('user.index') }}" class="btn btn-secondary">Kembali</a>
                 </form>

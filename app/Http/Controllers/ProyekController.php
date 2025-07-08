@@ -5,15 +5,27 @@ namespace App\Http\Controllers;
 use App\Models\Proyek;
 use App\Models\PemberiKerja;
 use App\Models\Perusahaan;
+use App\Models\User;
+
+
 use Illuminate\Http\Request;
 
 class ProyekController extends Controller
 {
     public function index()
     {
-        $proyeks = Proyek::all();   
+        $user = auth()->user();
+    
+        // Load relasi perusahaan
+        $perusahaanIds = $user->perusahaans()->pluck('perusahaan.id');
+    
+        $proyeks = Proyek::with(['perusahaan', 'pemberiKerja'])
+            ->whereIn('perusahaan_id', $perusahaanIds)
+            ->get();
+    
         return view('proyek.index', compact('proyeks'));
     }
+    
     
 
     public function create()

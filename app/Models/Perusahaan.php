@@ -20,4 +20,9 @@ class Perusahaan extends Model
         'tipe_perusahaan',
         'template_po'
     ];
+        // ✅ Relasi ke user (many-to-many)
+        public function users()
+        {
+            return $this->belongsToMany(User::class, 'user_perusahaan');
+        }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Perusahaan;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -26,8 +27,10 @@ class UserController extends Controller
             abort(403, 'Anda tidak memiliki akses.');
         }
 
-        $user = User::findOrFail($id);
-        return view('user.edit_permission', compact('user'));
+        $user = User::with('perusahaans')->findOrFail($id);
+        $perusahaans = Perusahaan::all(); // semua perusahaan
+    
+        return view('user.edit_permission', compact('user', 'perusahaans'));
     }
 
     // Update Permission
@@ -72,6 +75,9 @@ class UserController extends Controller
             'print_po' => $request->print_po ?? 0,
             'akses_user_manager' => $request->akses_user_manager ?? 0,
         ]);
+
+            // Simpan perusahaan yang dipilih ke tabel pivot
+             $user->perusahaans()->sync($request->perusahaan_ids ?? []); // Array of id_perusahaan
 
         return redirect()->route('user.index')->with('success', 'Permission berhasil diperbarui.');
     }
