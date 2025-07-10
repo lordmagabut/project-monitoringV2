@@ -65,12 +65,18 @@
                                     </button>
                                 </form>
                                 @endif
-                                @if(auth()->user()->print_po == 1)
-                                @if($item->status == 'draft')
-                                <a href="{{ route('po.print', $item->id) }}" class="btn btn-sm btn-primary btn-icon-text me-2">
-                                <i class="btn-icon-prepend" data-feather="printer"></i>Print</a>
+                                {{-- Tombol Print jika draft --}}
+                                @if(auth()->user()->print_po == 1 && $item->status == 'draft')
+                                    <a href="{{ route('po.print', $item->id) }}" class="btn btn-sm btn-primary btn-icon-text me-2">
+                                        <i class="btn-icon-prepend" data-feather="printer"></i>Print</a>
                                 @endif
+
+                                {{-- Tombol Buat Faktur jika sedang diproses --}}
+                                @if(auth()->user()->buat_faktur == 1 && $item->status == 'sedang diproses')
+                                    <a href="{{ route('faktur.createFromPo', $item->id) }}" class="btn btn-sm btn-success btn-icon-text me-2">
+                                        <i class="btn-icon-prepend" data-feather="file-text"></i>Buat Faktur</a>
                                 @endif
+
                                 @if(auth()->user()->hapus_po == 1)
                                 <form action="{{ route('po.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?')">
                                     @csrf
@@ -104,11 +110,21 @@
 @push('custom-scripts')
 <script>
   $(document).ready(function () {
-    $('#dataTableExample').DataTable({
+    const table = $('#dataTableExample').DataTable({
       responsive: true,
       autoWidth: false,
-      order: [[0, 'desc']]
+      order: [[0, 'desc']],
+      drawCallback: function(settings) {
+        setTimeout(() => {
+          feather.replace(); // Paksa feather update setelah draw selesai
+        }, 10); // Delay agar DOM benar-benar dirender
+      }
     });
+
+    // Render icon saat pertama kali
+    feather.replace();
   });
 </script>
 @endpush
+
+

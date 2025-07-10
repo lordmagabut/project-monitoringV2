@@ -73,6 +73,14 @@ class UserController extends Controller
             'hapus_po' => $request->hapus_po ?? 0,
             'revisi_po' => $request->revisi_po ?? 0,
             'print_po' => $request->print_po ?? 0,
+            'akses_jurnal' => $request->akses_jurnal ?? 0,
+            'buat_jurnal' => $request->buat_jurnal ?? 0,
+            'edit_jurnal' => $request->edit_jurnal ?? 0,
+            'hapus_jurnal' => $request->hapus_jurnal ?? 0,
+            'akses_faktur' => $request->akses_faktur ?? 0,
+            'buat_faktur' => $request->buat_faktur ?? 0,
+            'edit_faktur' => $request->edit_faktur ?? 0,
+            'hapus_faktur' => $request->hapus_faktur ?? 0,
             'akses_user_manager' => $request->akses_user_manager ?? 0,
         ]);
 

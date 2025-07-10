@@ -11,6 +11,7 @@ use App\Http\Controllers\PoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\JurnalController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\FakturController;
 
 // Route Login - Tidak Perlu Proteksi
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -47,6 +48,16 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('po', \App\Http\Controllers\PoController::class)
     ->middleware('cek_akses_po');
 
+    // Faktur Pembelian
+    Route::get('/faktur/create-from-po/{po}', [FakturController::class, 'createFromPo'])->name('faktur.createFromPo');
+    Route::get('/faktur/create', [FakturController::class, 'create'])->name('faktur.create');
+    Route::post('/faktur/store', [FakturController::class, 'store'])->name('faktur.store');
+    Route::get('/faktur', [FakturController::class, 'index'])->name('faktur.index');
+    Route::get('/faktur/{id}', [FakturController::class, 'show'])->name('faktur.show');
+    Route::delete('/faktur/{id}', [FakturController::class, 'destroy'])->name('faktur.destroy');
+    Route::post('/faktur/{id}/approve', [\App\Http\Controllers\FakturController::class, 'approve'])
+    ->name('faktur.approve');
+
 
     // COA
     Route::resource('coa', \App\Http\Controllers\CoaController::class)
@@ -72,12 +83,10 @@ Route::middleware(['auth'])->group(function () {
     ->middleware('cek_akses_perusahaan');
 
     // Jurnal
-    Route::get('/jurnal', [JurnalController::class, 'index'])->name('jurnal.index');
-    Route::get('/jurnal/create', [JurnalController::class, 'create'])->name('jurnal.create');
-    Route::post('/jurnal/store', [JurnalController::class, 'store'])->name('jurnal.store');
-    Route::get('/jurnal/{id}/edit', [JurnalController::class, 'edit'])->name('jurnal.edit');
-    Route::put('/jurnal/{id}', [JurnalController::class, 'update'])->name('jurnal.update');
-    Route::delete('/jurnal/{id}', [JurnalController::class, 'destroy'])->name('jurnal.destroy');
+    Route::get('/jurnal/detail/{id}', [\App\Http\Controllers\JurnalController::class, 'showDetail'])->name('jurnal.showDetail');
+    Route::resource('jurnal', \App\Http\Controllers\JurnalController::class)
+    ->middleware('cek_akses_jurnal');
+
 
     //Buku Besar
     Route::get('/buku-besar', [\App\Http\Controllers\BukuBesarController::class, 'index'])->name('buku-besar.index');

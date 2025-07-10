@@ -44,4 +44,10 @@ class Po extends Model
         return $this->belongsTo(Supplier::class, 'id_supplier');
     }
 
+    public function poDetails()
+    {
+        return $this->hasMany(PoDetail::class, 'po_id')->with('barang');
+    }
+
+
 }

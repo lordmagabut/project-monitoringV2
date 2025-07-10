@@ -29,23 +29,27 @@ class JurnalController extends Controller
                 if ($selectedPerusahaanId) {
                     $q->where('id_perusahaan', $selectedPerusahaanId);
                 }
-            });
+            })
+            ->join('jurnal', 'jurnal.id', '=', 'jurnal_details.jurnal_id')
+            ->orderBy('jurnal.tanggal', 'desc')
+            ->select('jurnal_details.*');
     
         if ($request->filled('coa_id')) {
             $query->where('coa_id', $request->coa_id);
         }
     
-        $jurnalDetails = $query->orderBy('jurnal_id')->get();
+        $jurnalDetails = $query->get();
     
-        // Kirim selected perusahaan ke view
         return view('jurnal.index', compact('jurnalDetails', 'coaList', 'request', 'perusahaans', 'selectedPerusahaanId'));
     }
-    
-    
     
 
     public function create()
     {
+        if (auth()->user()->buat_jurnal != 1) {
+            abort(403, 'Anda tidak memiliki izin.');
+        }
+
         $user = auth()->user();
         $perusahaans = $user->perusahaans()->get(); // relasi many-to-many
         $coa = Coa::all();
@@ -120,6 +124,9 @@ class JurnalController extends Controller
 
     public function destroy($id)
     {
+        if (auth()->user()->hapus_jurnal != 1) {
+            abort(403, 'Anda tidak memiliki izin.');
+        }
         $jurnal = \App\Models\Jurnal::findOrFail($id);
         $jurnal->details()->delete(); // opsional, karena relasi bisa cascade
         $jurnal->delete();
@@ -129,6 +136,9 @@ class JurnalController extends Controller
 
     public function edit($id)
     {
+        if (auth()->user()->edit_jurnal != 1) {
+            abort(403, 'Anda tidak memiliki izin.');
+        }
         $jurnal = Jurnal::with('details')->findOrFail($id);
         $coa = Coa::all();
         $perusahaans = auth()->user()->perusahaans()->get();
@@ -182,5 +192,22 @@ class JurnalController extends Controller
     return redirect()->route('jurnal.index')->with('success', 'Jurnal berhasil diupdate.');
 }
     
+public function showDetail($id)
+{
+    $jurnal = \App\Models\Jurnal::with(['details.coa', 'perusahaan'])->findOrFail($id);
+
+    return response()->json([
+        'jurnal' => $jurnal,
+        'details' => $jurnal->details->map(function ($row) {
+            return [
+                'akun' => $row->coa->no_akun . ' - ' . $row->coa->nama_akun,
+                'debit' => number_format($row->debit, 0, ',', '.'),
+                'kredit' => number_format($row->kredit, 0, ',', '.'),
+            ];
+        })
+    ]);
+}
+
+
 
 }

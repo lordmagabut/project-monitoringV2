@@ -40,6 +40,14 @@ class User extends Authenticatable
         'hapus_po',
         'revisi_po',
         'print_po',
+        'akses_jurnal',
+        'buat_jurnal',
+        'edit_jurnal',
+        'hapus_jurnal',
+        'akses_faktur',
+        'buat_faktur',
+        'edit_faktur',
+        'hapus_faktur',
         'akses_user_manager', 
     ];
 

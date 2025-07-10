@@ -28,6 +28,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" id="pembelian-tab" data-bs-toggle="tab" data-bs-target="#pembelian" role="tab" aria-controls="pembelian" aria-selected="false">Pembelian</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="laporan-tab" data-bs-toggle="tab" data-bs-target="#laporan" role="tab" aria-controls="laporan" aria-selected="false">Laporan</a>
+                            </li>
                         </ul>
 
                         <div class="tab-content border border-top-0 p-3" id="myTabContent">
@@ -199,6 +202,52 @@
                                         <div class="form-check mb-2">
                                             <input type="checkbox" name="print_po" value="1" class="form-check-input" id="print_po" {{ $user->print_po ? 'checked' : '' }}>
                                             <label class="form-check-label" for="print_po">Print PO</label> 
+                                        </div>
+                                    </div>
+                                    {{-- Kolom Invoice --}}
+                                    <div>
+                                        <h6 class="mb-1">Invoice</h6>
+                                        <div class="form-check mb-2">
+                                            <input type="checkbox" name="akses_faktur" value="1" class="form-check-input" id="akses_faktur" {{ $user->akses_faktur ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="akses_faktur">Akses Faktur</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input type="checkbox" name="buat_faktur" value="1" class="form-check-input" id="buat_faktur" {{ $user->buat_faktur ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="buat_faktur">Buat Faktur</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input type="checkbox" name="edit_faktur" value="1" class="form-check-input" id="edit_faktur" {{ $user->edit_faktur ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="edit_faktur">Edit Faktur</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input type="checkbox" name="hapus_faktur" value="1" class="form-check-input" id="hapus_faktur" {{ $user->hapus_faktur ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="hapus_faktur">Hapus Faktur</label> 
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            {{-- Tab Laporan --}}
+                            <div class="tab-pane fade" id="laporan" role="tabpanel" aria-labelledby="laporan-tab">
+                                <div class="d-flex" style="gap: 50px;">
+                                    {{-- Kolom Jurnal --}}
+                                    <div>
+                                        <h6 class="mb-1">Jurnal</h6>
+                                        <div class="form-check mb-2">
+                                            <input type="checkbox" name="akses_jurnal" value="1" class="form-check-input" id="akses_jurnal" {{ $user->akses_jurnal ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="akses_jurnal">Akses Jurnal</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input type="checkbox" name="buat_jurnal" value="1" class="form-check-input" id="buat_jurnal" {{ $user->buat_jurnal ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="buat_jurnal">Buat Jurnal</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input type="checkbox" name="edit_jurnal" value="1" class="form-check-input" id="edit_jurnal" {{ $user->edit_jurnal ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="edit_jurnal">Edit Jurnal</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input type="checkbox" name="hapus_jurnal" value="1" class="form-check-input" id="hapus_jurnal" {{ $user->hapus_jurnal ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="hapus_jurnal">Hapus Jurnal</label> 
                                         </div>
                                     </div>
 

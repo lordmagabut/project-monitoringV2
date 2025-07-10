@@ -106,12 +106,18 @@
                <div class="col-md-3">
                 <p class="category-heading">Pembelian</p>
                 <ul class="submenu-item pe-0">
+                @if (auth()->user()->akses_po == 1)
                   <li class="nav-item">
                     <a href="{{ url('/po/') }}" class="nav-link">Pesanan Pembelian</a>
                   </li>
+                  @endif
+                  @if (auth()->user()->akses_faktur == 1)
+                  <li class="nav-item">
+                    <a href="{{ url('/faktur/') }}" class="nav-link">Faktur Pembelian</a>
+                  </li>
+                  @endif
                 </ul>
               </div>
-
               <div class="col-md-3">
                 <p class="category-heading">Penjualan</p>
                 <ul class="submenu-item pe-0">
@@ -134,14 +140,19 @@
             <div class="col-group col-md-3">
                 <p class="category-heading">Laporan</p>
                 <ul class="submenu-item pe-0">
+                @if (auth()->user()->akses_jurnal == 1)
                   <li class="nav-item">
-                    <a href="{{ url('/jurnal/') }}" class="nav-link">Riwayat Jurnal</a>
+                    <a href="{{ url('/jurnal/') }}" class="nav-link">Jurnal</a>
+                  </li>
+                @endif
+                  <li class="nav-item">
+                    <a href="{{ url('/buku-besar/') }}" class="nav-link">Buku Besar</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="{{ route('laporan.neraca') }}">Laporan Neraca</a>
+                    <a class="nav-link" href="{{ route('laporan.neraca') }}">Neraca</a>
                   </li>
                   <li class="nav-item">
-                    <a href="{{ route('laporan.labaRugi') }}" class="nav-link">Laporan Laba Rugi</a>
+                    <a href="{{ route('laporan.labaRugi') }}" class="nav-link">Laba Rugi</a>
                   </li>
                 </ul>
               </div>
