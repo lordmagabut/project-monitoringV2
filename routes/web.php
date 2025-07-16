@@ -12,6 +12,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\JurnalController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\FakturController;
+use App\Http\Controllers\PembayaranFakturController;
 
 // Route Login - Tidak Perlu Proteksi
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -59,7 +60,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/faktur/{id}/approve', [\App\Http\Controllers\FakturController::class, 'approve'])
     ->name('faktur.approve');
 
+    // Pembayaran Faktur
+    Route::get('/pembayaran_faktur', [PembayaranFakturController::class, 'index'])->name('pembayaran_faktur.index');
+    Route::get('/pembayaran_faktur/create', [PembayaranFakturController::class, 'create'])->name('pembayaran_faktur.create');
+    Route::post('/pembayaran_faktur/store', [PembayaranFakturController::class, 'store'])->name('pembayaran_faktur.store');
 
+    Route::get('pembayaran_faktur/histori/{id_faktur}', [PembayaranFakturController::class, 'histori'])->name('pembayaran_faktur.histori');
+    Route::delete('pembayaran_faktur/histori/{id}', [PembayaranFakturController::class, 'destroy'])->name('pembayaran_faktur.histori');
+    
     // COA
     Route::resource('coa', \App\Http\Controllers\CoaController::class)
     ->middleware('cek_akses_coa');

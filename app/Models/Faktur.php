@@ -57,5 +57,13 @@ class Faktur extends Model
     {
         return $this->belongsTo(Jurnal::class, 'jurnal_id');
     }
+    public function fakturDetails()
+        {
+            return $this->hasMany(\App\Models\FakturDetail::class, 'id_faktur');
+        }
+        public function pembayaranFaktur()
+        {
+            return $this->hasMany(\App\Models\PembayaranFaktur::class, 'id_faktur');
+        }     
 
 }

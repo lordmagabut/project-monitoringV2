@@ -40,11 +40,13 @@
             "App\\": "app/"
         },
         "classmap": [
-            "database/seeds",
+            "database/seeders",
             "database/factories"
         ],
         "files": [
-            "app/helpers.php"
+            "app/helpers.php",
+            "app/Helpers/AuditHelper.php",
+            "app/Helpers/GlHelper.php"
         ]
     },
     "autoload-dev": {

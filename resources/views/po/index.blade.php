@@ -88,17 +88,16 @@
                                                 <a href="{{ route('faktur.createFromPo', $item->id) }}" class="btn btn-sm btn-success btn-icon-text me-2">
                                                     <i class="btn-icon-prepend" data-feather="file-text"></i>Buat Faktur</a>
                                             @endif
-
-                                            @if(auth()->user()->hapus_po == 1)
-                                            <form action="{{ route('po.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger btn-icon-text">
-                                                    <i class="btn-icon-prepend" data-feather="delete"></i>Hapus
-                                                </button>
-                                            </form>
+                                            @if(auth()->user()->hapus_po == 1 && $item->status == 'draft')
+                                                <form action="{{ route('po.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-danger btn-icon-text">
+                                                        <i class="btn-icon-prepend" data-feather="delete"></i>Hapus
+                                                    </button>
+                                                </form>
                                             @endif
-                                        </td>
+                                       </td>
                                     </tr>
                                     @endforeach
                       </tbody>
