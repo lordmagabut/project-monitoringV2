@@ -41,9 +41,11 @@
                         <select name="parent_id" class="form-select">
                             <option value="">-- Pilih Akun Induk --</option>
                             @foreach($parentAkun as $akun)
-                                <option value="{{ $akun->id }}" {{ $coa->parent_id == $akun->id ? 'selected' : '' }}>
-                                    {{ $akun->no_akun }} - {{ $akun->nama_akun }}
-                                </option>
+                                @if($akun->id != $coa->id && !$akun->isDescendantOf($coa))
+                                    <option value="{{ $akun->id }}" {{ $coa->parent_id == $akun->id ? 'selected' : '' }}>
+                                        {{ str_repeat('— ', $akun->depth) . $akun->no_akun . ' - ' . $akun->nama_akun }}
+                                    </option>
+                                @endif
                             @endforeach
                         </select>
                     </div>

@@ -53,4 +53,9 @@ class Faktur extends Model
     {
         return $this->belongsTo(Supplier::class, 'id_supplier');
     }
+    public function jurnal()
+    {
+        return $this->belongsTo(Jurnal::class, 'jurnal_id');
+    }
+
 }

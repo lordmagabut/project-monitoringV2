@@ -31,7 +31,6 @@
                             <th>Supplier</th>
                             <th>Total</th>
                             <th>Proyek</th>
-                            <th>Perusahaan</th>
                             <th>Status</th>
                             <th>File Faktur</th>
                             <th>Aksi</th>
@@ -45,7 +44,6 @@
                             <td>{{ $faktur->nama_supplier }}</td>
                             <td>Rp {{ number_format($faktur->total, 0, ',', '.') }}</td>
                             <td>{{ $faktur->proyek->nama_proyek ?? '-' }}</td>
-                            <td>{{ $faktur->perusahaan->nama_perusahaan ?? '-' }}</td>
                             <td>{{ ucfirst($faktur->status) }}</td>
                             <td>@if($faktur->file_path)
                                 <a href="{{ asset('storage/' . $faktur->file_path) }}" target="_blank">Lihat PDF</a>
@@ -55,16 +53,24 @@
                                     <i class="btn-icon-prepend" data-feather="eye"></i> Preview
                                 </a>
 
-                                @if(auth()->user()->hapus_faktur == 1)
-                                <form action="{{ route('faktur.destroy', $faktur->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus faktur ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger btn-icon-text">
-                                        <i class="btn-icon-prepend" data-feather="trash-2"></i> Hapus
-                                    </button>
-                                </form>
+                                @if($faktur->status == 'draft' && auth()->user()->hapus_faktur == 1)
+                                    <form action="{{ route('faktur.destroy', $faktur->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus faktur ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger btn-icon-text">
+                                            <i class="btn-icon-prepend" data-feather="trash-2"></i> Hapus
+                                        </button>
+                                    </form>
+                                @elseif($faktur->status == 'sedang diproses')
+                                    <form action="{{ route('faktur.revisi', $faktur->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Revisi faktur akan menghapus jurnal yang sudah tercatat. Lanjutkan?')">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-warning btn-icon-text">
+                                            <i class="btn-icon-prepend" data-feather="edit-3"></i> Revisi
+                                        </button>
+                                    </form>
                                 @endif
                             </td>
+
                         </tr>
                         @endforeach
                     </tbody>

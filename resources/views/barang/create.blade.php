@@ -49,6 +49,16 @@
                         </select>
                     </div>
 
+                    <div class="mb-3">
+                        <label class="form-label">Akun HPP (Harga Pokok Proyek)</label>
+                        <select name="coa_hpp_id" class="form-select">
+                            <option value="">-- Pilih Akun HPP --</option>
+                            @foreach($coa as $c)
+                                <option value="{{ $c->id }}">{{ $c->no_akun }} - {{ $c->nama_akun }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <button type="submit" class="btn btn-primary">Simpan</button>
                     <a href="{{ route('barang.index') }}" class="btn btn-secondary">Kembali</a>
                 </form>

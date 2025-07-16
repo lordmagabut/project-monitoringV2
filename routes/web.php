@@ -55,6 +55,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/faktur', [FakturController::class, 'index'])->name('faktur.index');
     Route::get('/faktur/{id}', [FakturController::class, 'show'])->name('faktur.show');
     Route::delete('/faktur/{id}', [FakturController::class, 'destroy'])->name('faktur.destroy');
+    Route::post('/faktur/{id}/revisi', [App\Http\Controllers\FakturController::class, 'revisi'])->name('faktur.revisi');
     Route::post('/faktur/{id}/approve', [\App\Http\Controllers\FakturController::class, 'approve'])
     ->name('faktur.approve');
 

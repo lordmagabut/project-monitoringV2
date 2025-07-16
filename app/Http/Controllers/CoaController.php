@@ -9,16 +9,19 @@ class CoaController extends Controller
 {
     public function index()
     {
-        $coas = Coa::with('children')->whereNull('parent_id')->get();
+        $coas = Coa::with(['children' => function ($query) {
+                        $query->orderBy('_lft');
+                    }])
+                    ->whereIsRoot()
+                    ->defaultOrder()
+                    ->get();
+    
         return view('coa.index', compact('coas'));
     }
 
     public function create()
     {
-        if (auth()->user()->buat_coa != 1) {
-            abort(403, 'Anda tidak memiliki izin.');
-        }
-        $parentAkun = Coa::all();
+        $parentAkun = Coa::defaultOrder()->get()->toFlatTree(); // ambil semua akun dalam struktur hirarkis
         return view('coa.create', compact('parentAkun'));
     }
 

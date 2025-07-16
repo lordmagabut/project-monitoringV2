@@ -93,8 +93,8 @@
     @if($faktur->status === 'draft')
   <form action="{{ route('faktur.approve', $faktur->id) }}" method="POST" class="mt-4">
     @csrf
-    <button type="submit" class="btn btn-success" onclick="return confirm('Setujui faktur dan buat jurnal?')">
-      <i class="bi bi-check-circle"></i> Setujui & Proses Jurnal
+    <button type="submit" class="btn btn-sm btn-primary btn-icon-text me-2" onclick="return confirm('Setujui faktur dan buat jurnal?')">
+    <i class="btn-icon-prepend" data-feather="check-circle"></i> Setuju
     </button>
   </form>
     @endif

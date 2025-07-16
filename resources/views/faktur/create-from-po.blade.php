@@ -23,11 +23,11 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Tanggal Faktur</label>
-                            <input type="date" name="tanggal" class="form-control" required value="{{ date('Y-m-d') }}">
+                            <input type="date" name="tanggal" class="form-control" value="{{ $po->tanggal }}" required value="{{ date('Y-m-d') }}">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">No. Faktur</label>
-                            <input type="text" name="no_faktur" class="form-control" required>
+                            <input type="text" name="no_faktur" class="form-control" value="{{ $po->no_po }}" required>
                         </div>
                     </div>
 
@@ -70,9 +70,7 @@
                                         <input type="hidden" name="items[{{ $i }}][harga]" value="{{ $detail->harga }}">
                                         <input type="hidden" name="items[{{ $i }}][coa_beban_id]" value="{{ $detail->coa_beban_id }}">
                                         <input type="hidden" name="items[{{ $i }}][coa_persediaan_id]" value="{{ $detail->coa_persediaan_id }}">
-                                        {{-- Debug sementara --}}
-                                        <small>beban: {{ $detail->coa_beban_id }} | persediaan: {{ $detail->coa_persediaan_id }}</small>
-
+                                        <input type="hidden" name="items[{{ $i }}][coa_hpp_id]" value="{{ $detail->coa_hpp_id }}">
                                     </td>
                                     <td>
                                         {{ $detail->uraian }}
@@ -82,6 +80,7 @@
                                             name="items[{{ $i }}][qty]"
                                             value="{{ $qty_sisa }}"
                                             min="0"
+                                            step="0.000001"
                                             max="{{ $qty_sisa }}"
                                             class="form-control form-control-sm qty-input"
                                             required>
@@ -95,8 +94,6 @@
                                         <input type="hidden" name="items[{{ $i }}][total]" class="total-input" value="{{ $qty_sisa * $detail->harga }}">
                                     </td>
                                 </tr>
-
-
                                 @endif
                             @endforeach
                         </tbody>

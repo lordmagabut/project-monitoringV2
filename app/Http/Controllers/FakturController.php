@@ -10,6 +10,8 @@ use App\Models\Po;
 use App\Models\Supplier;
 use App\Models\Perusahaan;
 use App\Models\Proyek;
+use App\Models\Jurnal;
+use App\Models\JurnalDetail;
 
 class FakturController extends Controller
 {
@@ -48,7 +50,7 @@ class FakturController extends Controller
     $request->validate([
         'no_faktur'   => 'required',
         'tanggal'     => 'required|date',
-        'file_path'   => 'nullable|file|mimes:pdf|max:2048',
+        'file_path'   => 'nullable|file|mimes:pdf|max:30000',
     ]);
 
     $filePath = null;
@@ -115,6 +117,7 @@ class FakturController extends Controller
                 'total'              => $totalBaris,
                 'coa_beban_id'       => $barang?->coa_beban_id,
                 'coa_persediaan_id'  => $barang?->coa_persediaan_id,
+                'coa_hpp_id'         => $barang?->coa_hpp_id,
             ]);
 
             $poDetail->qty_terfaktur += $qtyDipakai;
@@ -150,79 +153,96 @@ class FakturController extends Controller
         return view('faktur.show', compact('faktur'));
     }
 
-    public function destroy($id)
-    {
-        $faktur = Faktur::with('details')->findOrFail($id);
-    
-        foreach ($faktur->details as $detail) {
-            // Rollback qty_terfaktur jika berasal dari PO
-            if ($detail->po_detail_id) {
-                $poDetail = \App\Models\PoDetail::find($detail->po_detail_id);
-                if ($poDetail) {
-                    $poDetail->qty_terfaktur -= $detail->qty;
-                    if ($poDetail->qty_terfaktur < 0) $poDetail->qty_terfaktur = 0;
-                    $poDetail->save();
-                }
-            }
-    
-            $detail->delete();
-        }
-    
-        $faktur->delete();
-    
-        return redirect()->route('faktur.index')->with('success', 'Faktur dan referensi qty berhasil dihapus.');
-    }
-    
-
-    public function approve($id)
+public function destroy($id)
 {
     $faktur = Faktur::with('details')->findOrFail($id);
 
-    if ($faktur->status !== 'draft') {
-        return redirect()->back()->with('warning', 'Faktur sudah diproses.');
-    }
-
-    // Update status
-    $faktur->status = 'sedang diproses';
-    $faktur->save();
-
-    // Buat Jurnal
-    $jurnal = new \App\Models\Jurnal();
-    $jurnal->no_jurnal = 'JV-' . now()->format('ymd') . str_pad(rand(1,999), 3, '0', STR_PAD_LEFT);
-    $jurnal->tanggal = now();
-    $jurnal->id_perusahaan = $faktur->id_perusahaan;
-    $jurnal->keterangan = 'Faktur: ' . $faktur->no_faktur;
-    $jurnal->save();
-
-    // Total akhir (subtotal - diskon + ppn)
-    $totalFaktur = 0;
-
-    // Debit per detail faktur (coa_beban_id atau coa_persediaan_id)
     foreach ($faktur->details as $detail) {
-        $coaId = $detail->coa_beban_id ?? $detail->coa_persediaan_id;
-        $poDetail = $detail->po_detail; // jika relasi dibuat
-    
-        // Lewatkan jika tidak ada COA
-        if (!$coaId) continue;
-    
-        $jurnal->details()->create([
-            'coa_id' => $coaId,
-            'debit' => $detail->total,
-            'kredit' => 0,
-        ]);
-    
-        $totalFaktur += $detail->total;
-    }
-    
-    // Kredit ke Hutang Usaha (misal COA ID 3)
-    $jurnal->details()->create([
-        'coa_id' => 71, // ganti sesuai ID COA hutang usaha kamu
-        'debit' => 0,
-        'kredit' => $totalFaktur,
-    ]);
-    
+        if ($detail->po_detail_id) {
+            $poDetail = \App\Models\PoDetail::find($detail->po_detail_id);
+            if ($poDetail) {
+                $poDetail->qty_terfaktur -= $detail->qty;
+                if ($poDetail->qty_terfaktur < 0) $poDetail->qty_terfaktur = 0;
+                $poDetail->save();
+            }
+        }
 
-    return redirect()->route('faktur.index')->with('success', 'Faktur disetujui & jurnal berhasil dibuat.');
+        $detail->delete();
+    }
+
+    $faktur->delete();
+
+    // Tambahan: ubah status PO menjadi draft jika semua qty_terfaktur kembali 0
+    if ($faktur->id_po) {
+        $po = Po::with('poDetails')->find($faktur->id_po);
+        if ($po && $po->poDetails->every(fn($d) => $d->qty_terfaktur <= 0)) {
+            $po->status = 'draft';
+            $po->save();
+        }
+    }
+
+    return redirect()->route('faktur.index')->with('success', 'Faktur dan referensi qty berhasil dihapus.');
 }
+
+    public function approve($id)
+    {
+        $faktur = Faktur::with('details')->findOrFail($id);
+
+        if ($faktur->status !== 'draft') {
+            return redirect()->back()->with('warning', 'Faktur sudah diproses.');
+        }
+
+        $faktur->status = 'sedang diproses';
+        $faktur->save();
+
+        $jurnal = new Jurnal();
+        $jurnal->no_jurnal = 'JV-' . now()->format('ymd') . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
+        $jurnal->tanggal = $faktur->tanggal;
+        $jurnal->id_perusahaan = $faktur->id_perusahaan;
+        $jurnal->keterangan = 'Faktur: ' . $faktur->no_faktur;
+        $jurnal->save();
+
+        $totalFaktur = 0;
+
+        foreach ($faktur->details as $detail) {
+            $coaId = $detail->coa_beban_id ?? $detail->coa_persediaan_id ?? $detail->coa_hpp_id;
+            if (!$coaId) continue;
+
+            $jurnal->details()->create([
+                'coa_id' => $coaId,
+                'debit' => $detail->total,
+                'kredit' => 0,
+            ]);
+
+            $totalFaktur += $detail->total;
+        }
+
+        $jurnal->details()->create([
+            'coa_id' => 77, // ID akun Hutang Usaha, ubah sesuai sistemmu
+            'debit' => 0,
+            'kredit' => $totalFaktur,
+        ]);
+
+        $faktur->jurnal_id = $jurnal->id;
+        $faktur->save();
+
+        return redirect()->route('faktur.index')->with('success', 'Faktur disetujui & jurnal berhasil dibuat.');
+    }
+
+    public function revisi($id)
+    {
+        $faktur = Faktur::findOrFail($id);
+
+        if ($faktur->jurnal_id) {
+            JurnalDetail::where('jurnal_id', $faktur->jurnal_id)->delete();
+            Jurnal::where('id', $faktur->jurnal_id)->delete();
+            $faktur->jurnal_id = null;
+        }
+
+        $faktur->status = 'draft';
+        $faktur->save();
+
+        return redirect()->route('faktur.index')->with('success', 'Faktur berhasil direvisi. Jurnal telah dihapus.');
+    }
 
 }

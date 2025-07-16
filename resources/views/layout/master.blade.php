@@ -1,10 +1,5 @@
 <!DOCTYPE html>
-<!--
-Author: Nanda Purwanda
-Contact: nanda.purwanda@gmail.com
-Purchase: bayar dong jangan gratisan
-License: For each use you must have a valid license purchased only from above link in order to legally use the theme for your project.
--->
+
 <html>
 <head>
   <meta charset="UTF-8">
@@ -30,7 +25,6 @@ License: For each use you must have a valid license purchased only from above li
   <!-- plugin css -->
   <link href="{{ asset('assets/fonts/feather-font/css/iconfont.css') }}" rel="stylesheet" />
   <link href="{{ asset('assets/plugins/perfect-scrollbar/perfect-scrollbar.css') }}" rel="stylesheet" />
-  <link href="https://cdn.materialdesignicons.com/5.4.55/css/materialdesignicons.min.css" rel="stylesheet">
 
   <!-- end plugin css -->
 
@@ -60,6 +54,7 @@ License: For each use you must have a valid license purchased only from above li
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('assets/plugins/feather-icons/feather.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/perfect-scrollbar/perfect-scrollbar.min.js') }}"></script>
+ 
     <!-- end base js -->
 
     <!-- plugin js -->

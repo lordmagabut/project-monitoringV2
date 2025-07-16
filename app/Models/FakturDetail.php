@@ -23,6 +23,7 @@ class FakturDetail extends Model
         'total',
         'coa_beban_id',
         'coa_persediaan_id',
+        'coa_hpp_id',
     ];
 
     public function faktur()

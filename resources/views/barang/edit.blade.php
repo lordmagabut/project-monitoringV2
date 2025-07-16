@@ -56,6 +56,18 @@
                         </select>
                     </div>
 
+                    <div class="mb-3">
+                        <label class="form-label">Akun HPP</label>
+                        <select name="coa_hpp_id" class="form-select">
+                            <option value="">-- Pilih Akun HPP --</option>
+                            @foreach($coa as $c)
+                                <option value="{{ $c->id }}" {{ $barang->coa_hpp_id == $c->id ? 'selected' : '' }}>
+                                    {{ $c->no_akun }} - {{ $c->nama_akun }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <button type="submit" class="btn btn-primary">Update</button>
                     <a href="{{ route('barang.index') }}" class="btn btn-secondary">Kembali</a>
                 </form>

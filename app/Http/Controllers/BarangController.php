@@ -39,6 +39,7 @@ class BarangController extends Controller
             'tipe_id' => 'required|exists:tipe_barang_jasa,id',
             'coa_persediaan_id' => 'nullable|exists:coa,id',
             'coa_beban_id' => 'nullable|exists:coa,id',
+            'coa_hpp_id' => 'nullable|exists:coa,id',
         ]);
 
         Barang::create($request->all());
@@ -71,6 +72,7 @@ class BarangController extends Controller
             'tipe_id' => 'required|exists:tipe_barang_jasa,id',
             'coa_persediaan_id' => 'nullable|exists:coa,id',
             'coa_beban_id' => 'nullable|exists:coa,id',
+            'coa_hpp_id' => 'nullable|exists:coa,id',
         ]);
 
         $barang = Barang::findOrFail($id);

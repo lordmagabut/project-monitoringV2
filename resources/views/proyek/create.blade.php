@@ -16,10 +16,8 @@
             </ul>
           </div>
         @endif
-
         <form action="{{ route('proyek.store') }}" method="POST" enctype="multipart/form-data">
           @csrf
-          @method('PUT')
           <div class="mb-3">
     <label class="form-label">Perusahaan</label>
     <select name="perusahaan_id" class="form-select" required>

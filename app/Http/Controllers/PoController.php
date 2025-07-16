@@ -15,11 +15,31 @@ use PhpOffice\PhpWord\TemplateProcessor;
 
 class PoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $po = Po::with(['proyek', 'perusahaan'])->orderBy('tanggal', 'desc')->get();
-        return view('po.index', compact('po'));
+        $user = auth()->user();
+        $query = Po::query()->with(['supplier', 'proyek']);
+    
+        // Ambil tahun dari request atau default tahun saat ini
+        $tahun = $request->tahun ?? now()->format('Y');
+    
+        // Filter berdasarkan tahun saja
+        $query->whereYear('tanggal', $tahun);
+    
+        // Ambil semua PO yang sudah difilter
+        $po = $query->orderByDesc('tanggal')->get();
+    
+        // Ambil daftar tahun unik dari tabel po untuk dropdown filter
+        $tahunList = Po::selectRaw('YEAR(tanggal) as tahun')
+            ->distinct()
+            ->orderByDesc('tahun')
+            ->pluck('tahun')
+            ->toArray();
+    
+        return view('po.index', compact('po', 'tahun', 'tahunList'));
     }
+    
+    
     public function create()
     {   
         if (auth()->user()->buat_po != 1) {

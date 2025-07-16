@@ -7,7 +7,7 @@
         </a>
         <ul class="navbar-nav">       
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="me-2 icon-md" data-feather="user"></i>
               <span>{{ auth()->user()->username }}</span>
             </a>
@@ -21,8 +21,9 @@
                 <li class="dropdown-item py-2">
                   <form action="{{ route('logout') }}" method="POST" class="d-inline">
                     @csrf
-                    <button type="submit" class="btn btn-link text-danger">
-                      <i class="mdi mdi-logout"></i> Logout
+                    <button type="submit" class="btn btn-icon-text">
+                    <i class="btn-icon-prepend" data-feather="log-out"></i>
+                    <span>Log Out</span>
                     </button>
                   </form>
                 </li>
