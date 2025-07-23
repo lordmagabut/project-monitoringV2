@@ -13,7 +13,6 @@ class CekAksesCoa
         if (!Auth::check() || Auth::user()->akses_coa != 1) {
             abort(403, 'Anda tidak memiliki akses.');
         }
-
         return $next($request);
     }
 }

@@ -10,11 +10,11 @@
   <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title">Daftar Perusahaan</h4>
+        <h4 class="card-title">Profil Perusahaan</h4>
         @if(session('success'))
           <div class="alert alert-success">{{ session('success') }}</div>
         @endif
-        @if(auth()->user()->buat_perusahaan == 1)
+        @if(auth()->user()->buat_perusahaan == 1 && $jumlahPerusahaan == 0)
           <a href="{{ route('perusahaan.create') }}" class="btn btn-primary mb-3">Tambah Perusahaan</a>
         @endif
         <table id="dataTableExample" class="table table-hover align-middle display nowrap" style="width:100%">

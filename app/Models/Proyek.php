@@ -12,22 +12,34 @@ class Proyek extends Model
     protected $table = 'proyek';
 
     protected $fillable = [
-        'perusahaan_id',
         'nama_proyek',
         'pemberi_kerja_id',
         'no_spk',
         'nilai_spk',
+        'nilai_penawaran',
+        'diskon_rab',
+        'nilai_kontrak',
+        'tanggal_mulai',
+        'tanggal_selesai',
+        'status',
+        'lokasi',
         'file_spk',
-        'jenis_proyek',
+        'jenis_proyek'     
     ];
 
     public function pemberiKerja()
     {
         return $this->belongsTo(PemberiKerja::class);
     }
-    public function perusahaan()
+
+    public function rabHeaders()
     {
-        return $this->belongsTo(Perusahaan::class);
+        return $this->hasMany(RabHeader::class, 'proyek_id');
+    }
+
+    public function rabDetails()
+    {
+        return $this->hasMany(RabDetail::class, 'proyek_id');
     }
 
 }

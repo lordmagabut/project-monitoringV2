@@ -14,13 +14,17 @@
                                 @if(session('success'))
                                     <div class="alert alert-success">{{ session('success') }}</div>
                                 @endif
+
+                                @if(session('error'))
+                                    <div class="alert alert-danger">{{ session('error') }}</div>
+                                @endif
                                 @if(auth()->user()->buat_po == 1)
                                 <a href="{{ route('po.create') }}" class="btn btn-primary mb-3">Tambah PO</a>
                                 @endif
                                 <form method="GET" class="row g-3 mb-4">
                                     <div class="col-md-4">
                                         <label>Tahun</label>
-                                        <select name="tahun" class="form-select">
+                                        <select name="tahun" class="form-select"> 
                                             @foreach($tahunList as $thn)
                                                 <option value="{{ $thn }}" {{ $tahun == $thn ? 'selected' : '' }}>{{ $thn }}</option>
                                             @endforeach
@@ -29,8 +33,8 @@
                                     <div class="col-md-2 d-grid">
                                         <label class="invisible">_</label>
                                         <button type="submit" class="btn btn-primary">Filter</button>
-                                    </div>
-                                </form>
+                                    </div> 
+                                </form> 
                                 <table id="dataTableExample" class="table table-hover align-middle display nowrap" style="width:100%">
                                     <thead>
                                         <tr>

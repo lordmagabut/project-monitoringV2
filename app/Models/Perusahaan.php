@@ -18,11 +18,9 @@ class Perusahaan extends Model
         'no_telp',
         'npwp',
         'tipe_perusahaan',
-        'template_po'
+        'template_po',
+        'template_faktur',
+        'template_spk',
+        'logo_path'
     ];
-        // ✅ Relasi ke user (many-to-many)
-        public function users()
-        {
-            return $this->belongsToMany(User::class, 'user_perusahaan');
-        }
 }

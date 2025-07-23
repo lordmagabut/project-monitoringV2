@@ -13,11 +13,6 @@
 
                     <div class="row g-3 mb-4">
                         <div class="col-md-4">
-                            <label class="form-label">Perusahaan</label>
-                            <input type="text" id="namaPerusahaan" class="form-control" value="{{ $po->perusahaan->nama_perusahaan }}" readonly>
-                            <input type="hidden" name="id_perusahaan" id="idPerusahaan" value="{{ $po->id_perusahaan }}" required>
-                        </div>
-                        <div class="col-md-4">
                             <label class="form-label">Tanggal</label>
                             <input type="date" name="tanggal" class="form-control" value="{{ $po->tanggal }}" required>
                         </div>
@@ -44,8 +39,6 @@
                                 @foreach($proyek as $pr)
                                     <option 
                                         value="{{ $pr->id }}" 
-                                        data-id-perusahaan="{{ $pr->perusahaan->id }}"
-                                        data-nama-perusahaan="{{ $pr->perusahaan->nama_perusahaan }}"
                                         {{ $pr->id == $po->id_proyek ? 'selected' : '' }}
                                     >
                                         {{ $pr->nama_proyek }}

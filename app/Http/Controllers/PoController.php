@@ -31,12 +31,12 @@ class PoController extends Controller
     
         // Ambil daftar tahun unik dari tabel po untuk dropdown filter
         $tahunList = Po::selectRaw('YEAR(tanggal) as tahun')
-            ->distinct()
-            ->orderByDesc('tahun')
-            ->pluck('tahun')
-            ->toArray();
+        ->distinct()
+        ->orderByDesc('tahun')
+        ->pluck('tahun')
+        ->toArray();
     
-        return view('po.index', compact('po', 'tahun', 'tahunList'));
+        return view('po.index', compact('po', 'tahun', 'tahunList')); //
     }
     
     
@@ -46,11 +46,10 @@ class PoController extends Controller
             abort(403, 'Anda tidak memiliki izin.');
         }
         $suppliers = Supplier::all();
-        $perusahaan = Perusahaan::all();
         $proyek = Proyek::all();
         $barang = Barang::all();
 
-        return view('po.create', compact('suppliers', 'perusahaan', 'proyek', 'barang'));
+        return view('po.create', compact('suppliers', 'proyek', 'barang'));
     }
 
     public function store(Request $request)
@@ -63,7 +62,6 @@ class PoController extends Controller
             'tanggal' => 'required',
             'id_supplier' => 'required',
             'id_proyek' => 'required',
-            'id_perusahaan' => 'required',
             'items' => 'required|array|min:1'
         ]);
 
@@ -90,9 +88,9 @@ class PoController extends Controller
             'id_supplier' => $request->id_supplier,
             'nama_supplier' => $supplier->nama_supplier,
             'id_proyek' => $request->id_proyek,
-            'id_perusahaan' => $request->id_perusahaan,
             'keterangan' => $request->keterangan,
-            'total' => $grandTotal
+            'total' => $grandTotal,
+            'id_perusahaan' => auth()->user()->perusahaans->first()->id
         ]);
 
         foreach ($request->items as $item) {
@@ -138,11 +136,10 @@ class PoController extends Controller
         }
 
         $suppliers = Supplier::all();
-        $perusahaan = Perusahaan::all();
         $proyek = Proyek::all();
         $barang = Barang::all();
 
-        return view('po.edit', compact('po', 'suppliers', 'perusahaan', 'proyek', 'barang'));
+        return view('po.edit', compact('po', 'suppliers', 'proyek', 'barang'));
     }
 
     public function update(Request $request, $id)
@@ -155,7 +152,6 @@ class PoController extends Controller
             'tanggal' => 'required',
             'id_supplier' => 'required',
             'id_proyek' => 'required',
-            'id_perusahaan' => 'required',
             'items' => 'required|array|min:1'
         ]);
 
@@ -171,7 +167,6 @@ class PoController extends Controller
             'id_supplier' => $request->id_supplier,
             'nama_supplier' => $supplier->nama_supplier,
             'id_proyek' => $request->id_proyek,
-            'id_perusahaan' => $request->id_perusahaan,
             'keterangan' => $request->keterangan,
         ]);
 
@@ -220,94 +215,105 @@ class PoController extends Controller
 
         return redirect()->route('po.index')->with('success', 'PO berhasil dihapus.');
     }
-
     public function print($id)
-{
-    if (auth()->user()->print_po != 1) {
-        abort(403, 'Anda tidak memiliki izin.');
-    }
-    $po = Po::with(['details', 'perusahaan', 'proyek','supplier'])->findOrFail($id);
-
-    if ($po->status == 'draft') {
-        if (!$po->perusahaan || !$po->perusahaan->template_po) {
-            return back()->with('error', 'Template PO untuk perusahaan belum tersedia.');
+    {
+        if (auth()->user()->print_po != 1) {
+            abort(403, 'Anda tidak memiliki izin.');
         }
+    
+        $po = Po::with(['details', 'perusahaan', 'proyek', 'supplier'])->findOrFail($id);
+    
+        if ($po->status !== 'draft') {
+            return redirect()->route('po.index')->with('info', 'PO sudah diproses atau dicetak sebelumnya.');
+        }
+    
+        if (empty($po->perusahaan?->template_po)) {
+            return back()->with('error', 'Template PO untuk perusahaan belum tersedia.');
 
+            $templatePath = storage_path('app/public/' . $po->perusahaan->template_po);
+
+            if (!file_exists($templatePath)) {
+                return back()->with('error', 'File template tidak ditemukan di storage.');
+            }
+
+        }
+    
         $templatePath = storage_path('app/public/' . $po->perusahaan->template_po);
-        $outputDir = storage_path('app/public/po_files/' . $po->id);
-
+        $outputDir = storage_path("app/public/po_files/{$po->id}");
+        $poFileName = 'PO_' . str_replace('/', '_', $po->no_po);
+        $outputDocx = "{$outputDir}/{$poFileName}.docx";
+        $outputPdf = "{$outputDir}/{$poFileName}.pdf";
+    
         if (!file_exists($outputDir)) {
             mkdir($outputDir, 0777, true);
         }
-
-        $outputDocx = $outputDir . '/PO_' . str_replace('/', '_', $po->no_po) . '.docx';
-        $outputPdf = $outputDir . '/PO_' . str_replace('/', '_', $po->no_po) . '.pdf';
-
+    
         $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($templatePath);
-
-        // Format tanggal dd MMMM yyyy (contoh: 04 Juli 2025)
-        $formattedDate = Carbon::parse($po->tanggal)->translatedFormat('d F Y');
-
         $templateProcessor->setValue('no_po', $po->no_po);
-        $templateProcessor->setValue('tanggal', $formattedDate);
+        $templateProcessor->setValue('tanggal', Carbon::parse($po->tanggal)->translatedFormat('d F Y'));
         $templateProcessor->setValue('supplier', $po->nama_supplier);
         $templateProcessor->setValue('keterangan', $po->keterangan ?? '-');
         $templateProcessor->setValue('proyek', $po->proyek->nama_proyek ?? '-');
         $templateProcessor->setValue('pic', $po->supplier->pic ?? '-');
         $templateProcessor->setValue('no_kontak', $po->supplier->no_kontak ?? '-');
-
-        $templateProcessor->cloneRow('item_no', count($po->details));
+    
+        $templateProcessor->cloneRow('item_no', $po->details->count());
         $grandTotal = 0;
-
-        foreach ($po->details as $index => $detail) {
-            $row = $index + 1;
+    
+        foreach ($po->details as $i => $detail) {
+            $row = $i + 1;
             $templateProcessor->setValue("item_no#{$row}", $row);
             $templateProcessor->setValue("uraian#{$row}", $detail->uraian);
             $templateProcessor->setValue("qty#{$row}", number_format($detail->qty, 0, ',', '.'));
             $templateProcessor->setValue("uom#{$row}", $detail->uom);
             $templateProcessor->setValue("harga#{$row}", number_format($detail->harga, 0, ',', '.'));
             $templateProcessor->setValue("total#{$row}", number_format($detail->total, 0, ',', '.'));
-
             $grandTotal += $detail->total;
         }
-
+    
         $diskonPersen = $po->details->first()->diskon_persen ?? 0;
         $diskonRupiah = ($diskonPersen / 100) * $grandTotal;
         $ppnPersen = $po->details->first()->ppn_persen ?? 0;
         $ppnRupiah = (($grandTotal - $diskonRupiah) * $ppnPersen / 100);
         $finalTotal = ($grandTotal - $diskonRupiah) + $ppnRupiah;
-
+    
         $templateProcessor->setValue('subtotal', number_format($grandTotal, 0, ',', '.'));
-        $templateProcessor->setValue('diskon_persen', $diskonPersen > 0 ? number_format($diskonPersen, 0, ',', '.') : '');
-        $templateProcessor->setValue('diskon_rupiah', $diskonRupiah > 0 ? number_format($diskonRupiah, 0, ',', '.') : '');
-        $templateProcessor->setValue('ppn_persen', $ppnPersen > 0 ? number_format($ppnPersen, 0, ',', '.') : '');
-        $templateProcessor->setValue('ppn_rupiah', $ppnRupiah > 0 ? number_format($ppnRupiah, 0, ',', '.') : '');
+        $templateProcessor->setValue('diskon_persen', $diskonPersen ? number_format($diskonPersen, 0, ',', '.') : '');
+        $templateProcessor->setValue('diskon_rupiah', $diskonRupiah ? number_format($diskonRupiah, 0, ',', '.') : '');
+        $templateProcessor->setValue('ppn_persen', $ppnPersen ? number_format($ppnPersen, 0, ',', '.') : '');
+        $templateProcessor->setValue('ppn_rupiah', $ppnRupiah ? number_format($ppnRupiah, 0, ',', '.') : '');
         $templateProcessor->setValue('grand_total', number_format($finalTotal, 0, ',', '.'));
-
+    
         $templateProcessor->saveAs($outputDocx);
-
-        // Jalankan LibreOffice secara manual via exec
+    
         $libreOfficePath = '"C:\\Program Files\\LibreOffice\\program\\soffice.exe"';
-        $command = $libreOfficePath . ' --headless --convert-to pdf --outdir ' . escapeshellarg($outputDir) . ' ' . escapeshellarg($outputDocx);
-
+        $command = "{$libreOfficePath} --headless --convert-to pdf --outdir " . escapeshellarg($outputDir) . ' ' . escapeshellarg($outputDocx);
         exec($command, $output, $resultCode);
-
+    
         if ($resultCode !== 0) {
-            return back()->with('error', 'Konversi gagal: Conversion Failure! Contact Server Admin: code ' . $resultCode . ' error:');
+            return back()->with('error', 'Konversi gagal. Hubungi administrator. Kode: ' . $resultCode);
         }
-
-        $pdfPath = 'po_files/' . $po->id . '/PO_' . str_replace('/', '_', $po->no_po) . '.pdf';
-
+    
+        $pdfPath = "po_files/{$po->id}/{$poFileName}.pdf";
+    
         $po->update([
             'status' => 'sedang diproses',
             'printed_at' => now(),
-            'file_path' => $pdfPath
+            'file_path' => $pdfPath,
         ]);
+    
+        // 👇 Preview otomatis hasil cetak (PDF)
+        if (!file_exists(storage_path('app/public/' . $pdfPath))) {
+            return back()->with('error', 'PDF gagal dibuat atau tidak ditemukan.');
+        }
+        
+        return redirect()->route('po.index')->with([
+            'success' => 'PO berhasil dicetak.',
+            'preview_pdf' => asset('storage/' . $pdfPath)
+        ]);
+        
     }
-
-    return redirect()->route('po.index')->with('success', 'PO berhasil dicetak.');
-}
-
+    
 public function revisi($id)
 {
     if (auth()->user()->revisi_po != 1) {

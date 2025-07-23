@@ -130,7 +130,7 @@
             </div>
           </div>
         </li>
-        <li class="nav-item mega-menu {{ active_class(['general/*', 'error/*', 'auth/*']) }}">
+        <li class="nav-item mega-menu">
           <a href="#" class="nav-link">
             <i class="link-icon" data-feather="book"></i>
             <span class="menu-title">Laporan</span>

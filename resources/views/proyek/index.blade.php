@@ -20,7 +20,6 @@
         <table id="dataTableExample" class="table table-hover align-middle display nowrap" style="width:100%">
             <thead>
               <tr>
-                <th>Nama Perusahaan</th>
                 <th>Nama Proyek</th>
                 <th>Pemberi Kerja</th>
                 <th>No SPK</th>
@@ -32,7 +31,6 @@
             <tbody>
               @foreach($proyeks as $index => $proyek)
               <tr>
-                <td>{{ $proyek->perusahaan->nama_perusahaan }}</td>
                 <td>{{ $proyek->nama_proyek }}</td>
                 <td>{{ $proyek->pemberiKerja->nama_pemberi_kerja }}</td>
                 <td>
@@ -45,21 +43,30 @@
                 <td>Rp. {{ number_format($proyek->nilai_spk, 0, ',', '.') }}</td>
                 <td>{{ ucfirst($proyek->jenis_proyek) }}</td>
                 <td>
-                @if(auth()->user()->edit_proyek == 1)
-                    <a href="{{ route('proyek.edit', $proyek->id) }}" class="btn btn-sm btn-primary btn-icon-text me-2">
-                      <i class="btn-icon-prepend" data-feather="edit"></i> Edit
-                    </a>
-                  @endif
-                  @if(auth()->user()->hapus_proyek == 1)
-                    <form action="{{ route('proyek.destroy', $proyek->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin mau dihapus?')">
-                      @csrf
-                      @method('DELETE')
-                      <button type="submit" class="btn btn-sm btn-danger btn-icon-text">
-                        <i class="btn-icon-prepend" data-feather="delete"></i> Hapus
-                      </button>
-                    </form>
-                  @endif
+                    <div class="btn-group" role="group">
+                        <button id="aksiDropdown{{ $proyek->id }}" type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            Aksi
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="aksiDropdown{{ $proyek->id }}">
+                            @if(auth()->user()->akses_proyek == 1)
+                                <a href="{{ route('proyek.show', $proyek->id) }}" class="dropdown-item">
+                                    <i class="me-1" data-feather="eye"></i> Detail
+                                </a>
+                            @endif
+
+                            @if(auth()->user()->hapus_proyek == 1)
+                                <form action="{{ route('proyek.destroy', $proyek->id) }}" method="POST" onsubmit="return confirm('Yakin mau dihapus?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="me-1" data-feather="trash-2"></i> Hapus
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
                 </td>
+
               </tr>
               @endforeach
             </tbody>

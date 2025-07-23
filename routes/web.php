@@ -11,8 +11,12 @@ use App\Http\Controllers\PoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\JurnalController;
 use App\Http\Controllers\LaporanController;
-use App\Http\Controllers\FakturController;
-use App\Http\Controllers\PembayaranFakturController;
+use App\Http\Controllers\FakturController;  
+use App\Http\Controllers\ProjectTaskController;
+use App\Http\Controllers\RabController;
+use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\RabProgressController;
+
 
 // Route Login - Tidak Perlu Proteksi
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -61,12 +65,12 @@ Route::middleware(['auth'])->group(function () {
     ->name('faktur.approve');
 
     // Pembayaran Faktur
-    Route::get('/pembayaran_faktur', [PembayaranFakturController::class, 'index'])->name('pembayaran_faktur.index');
-    Route::get('/pembayaran_faktur/create', [PembayaranFakturController::class, 'create'])->name('pembayaran_faktur.create');
-    Route::post('/pembayaran_faktur/store', [PembayaranFakturController::class, 'store'])->name('pembayaran_faktur.store');
+    // Route::get('/pembayaran_faktur', [PembayaranFakturController::class, 'index'])->name('pembayaran_faktur.index');
+    // Route::get('/pembayaran_faktur/create', [PembayaranFakturController::class, 'create'])->name('pembayaran_faktur.create');
+    // Route::post('/pembayaran_faktur/store', [PembayaranFakturController::class, 'store'])->name('pembayaran_faktur.store');
 
-    Route::get('pembayaran_faktur/histori/{id_faktur}', [PembayaranFakturController::class, 'histori'])->name('pembayaran_faktur.histori');
-    Route::delete('pembayaran_faktur/histori/{id}', [PembayaranFakturController::class, 'destroy'])->name('pembayaran_faktur.histori');
+    // Route::get('pembayaran_faktur/histori/{id_faktur}', [PembayaranFakturController::class, 'histori'])->name('pembayaran_faktur.histori');
+    // Route::delete('pembayaran_faktur/histori/{id}', [PembayaranFakturController::class, 'destroy'])->name('pembayaran_faktur.histori');
     
     // COA
     Route::resource('coa', \App\Http\Controllers\CoaController::class)
@@ -79,6 +83,31 @@ Route::middleware(['auth'])->group(function () {
     // Proyek
     Route::resource('proyek', \App\Http\Controllers\ProyekController::class)
     ->middleware('cek_akses_proyek');
+    Route::post('proyek/generate-ulang/{proyek_id}', [ProyekController::class, 'generateUlang'])->name('proyek.generateUlang');
+
+    // RAB Schedule Progress
+    Route::get('/rab/{proyek_id}', [RabController::class, 'index'])->name('rab.index');
+    Route::post('/rab/import', [RabController::class, 'import'])->name('rab.import');
+    Route::delete('/rab/reset/{proyek_id}', [RabController::class, 'reset'])->name('rab.reset');
+    Route::post('/proyek/{id}/generate-schedule', [ProyekController::class, 'generateSchedule'])->name('proyek.generateSchedule');
+    // Route::get('/proyek/{id}/schedule-input', [ProyekController::class, 'inputSchedule'])->name('proyek.scheduleInput');
+    Route::get('proyek/{proyek}/schedule-input', [ScheduleController::class, 'create'])->name('schedule.create');   
+    Route::post('proyek/{proyek}/schedule-input', [ScheduleController::class, 'store'])->name('schedule.store');
+    Route::delete('/proyek/{id}/rab-reset', [ProyekController::class, 'resetRab'])->name('proyek.resetRab');
+    Route::get('proyek/{id}/progress/input', [RabProgressController::class, 'create'])->name('proyek.progress.create');
+    Route::post('proyek/{id}/progress', [RabProgressController::class, 'store'])->name('proyek.progress.store');
+    Route::get('/proyek/{proyek}/progress/{minggu_ke}', [RabProgressController::class, 'detail'])->name('proyek.progress.detail');
+    Route::post('/proyek/{proyek}/progress/{minggu_ke}/update', [RabProgressController::class, 'update'])->name('proyek.progress.update');
+    Route::post('/proyek/{proyek}/progress/{minggu_ke}/sahkan', [RabProgressController::class, 'sahkan'])->name('proyek.progress.sahkan');
+    Route::delete('/proyek/{proyek}/progress/{minggu_ke}', [RabProgressController::class, 'destroy'])->name('proyek.progress.destroy');
+
+
+
+    // Project Task
+    // Route::resource('projectTask', ProjectTaskController::class)->except(['index', 'show']);
+    // Route::get('projectTask/kurva_s/{proyek_id}', [ProjectTaskController::class, 'kurvaS'])->name('projectTask.kurvaS');
+    // Route::post('/projectTask/generate-ulang/{proyek_id}', [ProjectTaskController::class, 'generateRencanaUlang'])->name('projectTask.generateUlang');
+
 
     // Pemberi Kerja
     Route::resource('pemberiKerja', PemberiKerjaController::class)->middleware('cek_akses_pemberi_kerja');
@@ -95,7 +124,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/jurnal/detail/{id}', [\App\Http\Controllers\JurnalController::class, 'showDetail'])->name('jurnal.showDetail');
     Route::resource('jurnal', \App\Http\Controllers\JurnalController::class)
     ->middleware('cek_akses_jurnal');
-
 
     //Buku Besar
     Route::get('/buku-besar', [\App\Http\Controllers\BukuBesarController::class, 'index'])->name('buku-besar.index');

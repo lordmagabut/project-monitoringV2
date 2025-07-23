@@ -20,9 +20,9 @@ class Po extends Model
         'id_perusahaan',
         'keterangan',
         'total',
-        'status',         // Tambahkan ini
+        'status',         
         'printed_at',
-        'file_path'      // Tambahkan ini
+        'file_path'      
     ];
 
     public function perusahaan()

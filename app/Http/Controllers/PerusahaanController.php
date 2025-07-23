@@ -10,8 +10,10 @@ class PerusahaanController extends Controller
 {
     public function index()
     {
+        $jumlahPerusahaan = \App\Models\Perusahaan::count();
         $perusahaans = Perusahaan::all();
-        return view('perusahaan.index', compact('perusahaans'));
+        return view('perusahaan.index', compact('perusahaans','jumlahPerusahaan'));
+
     }
 
     public function create()
