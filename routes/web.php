@@ -85,12 +85,17 @@ Route::middleware(['auth'])->group(function () {
     ->middleware('cek_akses_proyek');
     Route::post('proyek/generate-ulang/{proyek_id}', [ProyekController::class, 'generateUlang'])->name('proyek.generateUlang');
 
+    // RAB
+    Route::resource('hsd-material', HsdMaterialController::class);
+    Route::resource('hsd-upah', HsdUpahController::class);
+    Route::resource('ahsp', AhspController::class);
+
+
     // RAB Schedule Progress
     Route::get('/rab/{proyek_id}', [RabController::class, 'index'])->name('rab.index');
     Route::post('/rab/import', [RabController::class, 'import'])->name('rab.import');
     Route::delete('/rab/reset/{proyek_id}', [RabController::class, 'reset'])->name('rab.reset');
     Route::post('/proyek/{id}/generate-schedule', [ProyekController::class, 'generateSchedule'])->name('proyek.generateSchedule');
-    // Route::get('/proyek/{id}/schedule-input', [ProyekController::class, 'inputSchedule'])->name('proyek.scheduleInput');
     Route::get('proyek/{proyek}/schedule-input', [ScheduleController::class, 'create'])->name('schedule.create');   
     Route::post('proyek/{proyek}/schedule-input', [ScheduleController::class, 'store'])->name('schedule.store');
     Route::delete('/proyek/{id}/rab-reset', [ProyekController::class, 'resetRab'])->name('proyek.resetRab');
@@ -100,14 +105,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/proyek/{proyek}/progress/{minggu_ke}/update', [RabProgressController::class, 'update'])->name('proyek.progress.update');
     Route::post('/proyek/{proyek}/progress/{minggu_ke}/sahkan', [RabProgressController::class, 'sahkan'])->name('proyek.progress.sahkan');
     Route::delete('/proyek/{proyek}/progress/{minggu_ke}', [RabProgressController::class, 'destroy'])->name('proyek.progress.destroy');
-
-
-
-    // Project Task
-    // Route::resource('projectTask', ProjectTaskController::class)->except(['index', 'show']);
-    // Route::get('projectTask/kurva_s/{proyek_id}', [ProjectTaskController::class, 'kurvaS'])->name('projectTask.kurvaS');
-    // Route::post('/projectTask/generate-ulang/{proyek_id}', [ProjectTaskController::class, 'generateRencanaUlang'])->name('projectTask.generateUlang');
-
 
     // Pemberi Kerja
     Route::resource('pemberiKerja', PemberiKerjaController::class)->middleware('cek_akses_pemberi_kerja');
