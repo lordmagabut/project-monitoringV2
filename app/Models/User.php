@@ -55,11 +55,15 @@ class User extends Authenticatable
         'password',
     ];
 
-// User.php
-public function perusahaans()
-{
-    return $this->belongsToMany(Perusahaan::class, 'user_perusahaan', 'user_id', 'perusahaan_id');
-}
+    public function perusahaans()
+    {
+        return $this->belongsToMany(Perusahaan::class, 'user_perusahaan', 'user_id', 'perusahaan_id');
+    }
+
+    public function materialUpdates()
+    {
+        return $this->hasMany(HsdMaterialHistory::class, 'updated_by');
+    }
 
     
 }

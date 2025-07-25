@@ -1,9 +1,13 @@
 @extends('layout.master')
 
+@push('plugin-styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+@endpush
+
 @section('content')
 <div class="card">
     <div class="card-header">
-        <h4 class="card-title">Tambah AHSP</h4>
+        <h4 class="card-title">Tambah Analisa Harga Satuan Pekerjaan</h4>
     </div>
     <div class="card-body">
         <form action="{{ route('ahsp.store') }}" method="POST" id="ahsp-form">
@@ -38,11 +42,12 @@
             <h6>Komponen Material / Upah</h6>
 
             <div class="table-responsive">
-                <table class="table table-bordered" id="item-table">
-                    <thead class="table-light">
+                <table class="table" id="item-table">
+                    <thead>
                         <tr>
                             <th style="width: 15%">Tipe</th>
                             <th style="width: 35%">Item</th>
+                            <th style="width: 10%">Satuan</th>
                             <th style="width: 15%">Koefisien</th>
                             <th style="width: 15%">Harga Satuan</th>
                             <th style="width: 15%">Subtotal</th>
@@ -72,9 +77,24 @@
 @endsection
 
 @push('custom-scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
     const materials = @json($materials);
     const upahs = @json($upahs);
+
+    function formatRupiah(value) {
+        return 'Rp ' + Number(value).toLocaleString('id-ID');
+    }
+
+    function initSelect2(container) {
+        $(container).find('.item-dropdown').select2({
+            placeholder: 'Pilih item',
+            allowClear: true,
+            width: '100%',
+            dropdownParent: $(container)
+        });
+    }
 
     function addItemRow() {
         const tbody = document.getElementById('item-body');
@@ -89,10 +109,11 @@
                 </select>
             </td>
             <td>
-                <select name="items[${rowIndex}][referensi_id]" class="form-select item-dropdown">
-                    ${materials.map(m => `<option value="${m.id}" data-harga="${m.harga_satuan}">${m.nama}</option>`).join('')}
+                <select name="items[${rowIndex}][referensi_id]" class="form-select item-dropdown" onchange="updateSubtotalFromDropdown(this)">
+                    ${materials.map(m => `<option value="${m.id}" data-harga="${m.harga_satuan}" data-satuan="${m.satuan}">${m.nama}</option>`).join('')}
                 </select>
             </td>
+            <td class="satuan text-center">-</td>
             <td>
                 <input type="number" name="items[${rowIndex}][koefisien]" class="form-control koefisien-input" step="0.0001" value="0" oninput="updateSubtotal(this)">
             </td>
@@ -107,8 +128,10 @@
 
         tbody.appendChild(row);
         feather.replace();
+        initSelect2(row); // jika menggunakan select2
         updateSubtotal(row.querySelector('.koefisien-input'));
     }
+
 
     function updateItemDropdown(select) {
         const row = select.closest('tr');
@@ -119,21 +142,21 @@
             .map(item => `<option value="${item.id}" data-harga="${item.harga_satuan}">${item.nama || item.jenis_pekerja}</option>`)
             .join('');
 
-        itemDropdown.innerHTML = options;
+        $(itemDropdown).html(options).trigger('change');
         updateSubtotal(row.querySelector('.koefisien-input'));
     }
 
     function updateSubtotal(input) {
         const row = input.closest('tr');
-        const tipe = row.querySelector('.tipe-select').value;
         const selected = row.querySelector('.item-dropdown').selectedOptions[0];
-        const harga = parseFloat(selected.dataset.harga || 0);
+        const harga = parseFloat(selected?.dataset?.harga || 0);
+        const satuan = selected?.dataset?.satuan || '-';
         const koef = parseFloat(input.value || 0);
         const subtotal = harga * koef;
 
+        row.querySelector('.satuan').innerText = satuan;
         row.querySelector('.harga-satuan').innerText = formatRupiah(harga);
         row.querySelector('.subtotal').innerText = formatRupiah(subtotal);
-
         updateTotalHarga();
     }
 
@@ -151,8 +174,9 @@
         updateTotalHarga();
     }
 
-    function formatRupiah(value) {
-        return 'Rp ' + Number(value).toLocaleString('id-ID');
-    }
+    // optional: init satu baris saat halaman pertama dibuka
+    document.addEventListener('DOMContentLoaded', () => {
+        addItemRow();
+    });
 </script>
 @endpush

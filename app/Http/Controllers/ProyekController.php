@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
+
 use App\Models\Proyek;
 use App\Models\PemberiKerja;
 use App\Models\Perusahaan;
@@ -11,9 +15,8 @@ use App\Models\RabDetail;
 use App\Models\RabSchedule;
 use App\Models\RabScheduleDetail;
 use App\Models\RabProgress;
-
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
+use App\Services\ProyekService;
+use App\Helpers\FileUploadHelper;
 
 class ProyekController extends Controller
 {
@@ -32,44 +35,23 @@ class ProyekController extends Controller
         $pemberiKerja = PemberiKerja::all();
         return view('proyek.create', compact('pemberiKerja'));
     }
-
+  
     public function store(Request $request)
     {
-        if (auth()->user()->buat_proyek != 1) {
-            abort(403, 'Anda tidak memiliki izin untuk menambah proyek.');
-        }
-        $request->validate([
-            'nama_proyek' => 'required',
-            'pemberi_kerja_id' => 'required|exists:pemberi_kerja,id',
-            'no_spk' => 'required',
-            'nilai_spk' => 'required|numeric',
-            'file_spk' => 'nullable|mimes:pdf|max:10240',
-            'jenis_proyek' => 'required|in:kontraktor,cost and fee',
-            'tanggal_mulai' => 'nullable|date',
-            'tanggal_selesai' => 'nullable|date',
-            'lokasi' => 'nullable'
-        ]);
-
-        $filePath = null;
+        // Validasi dari Service
+        $validated = ProyekService::validateRequest($request);
+    
+        // Jika ada file SPK, tambahkan ke array validasi
         if ($request->hasFile('file_spk')) {
-            $filePath = $request->file('file_spk')->store('spk', 'public');
+            $validated['file_spk'] = FileUploadHelper::upload($request->file('file_spk'), 'spk');
         }
-
-        Proyek::create([
-            'nama_proyek' => $request->nama_proyek,
-            'pemberi_kerja_id' => $request->pemberi_kerja_id,
-            'no_spk' => $request->no_spk,
-            'nilai_spk' => $request->nilai_spk,
-            'file_spk' => $filePath,
-            'jenis_proyek' => $request->jenis_proyek,
-            'tanggal_mulai' => $request->tanggal_mulai,
-            'tanggal_selesai' => $request->tanggal_selesai,
-            'lokasi' => $request->lokasi,
-        ]);
-
-        return redirect()->route('proyek.index')->with('success', 'Data proyek berhasil disimpan.');
+    
+        // Simpan data proyek
+        Proyek::create($validated);
+    
+        return redirect()->route('proyek.index')->with('success', 'Proyek berhasil ditambahkan.');
     }
-
+    
     public function edit($id)
     {
         if (auth()->user()->edit_proyek != 1) {
@@ -83,61 +65,35 @@ class ProyekController extends Controller
     public function update(Request $request, $id)
     {
         $proyek = Proyek::findOrFail($id);
+        $validated = ProyekService::validateUpdateRequest($request);
     
-        $request->validate([
-            'nama_proyek' => 'required|string|max:255',
-            'pemberi_kerja_id' => 'required|exists:pemberi_kerja,id',
-            'no_spk' => 'required|string|max:100',
-            'nilai_spk' => 'required|numeric',
-            'tanggal_mulai' => 'nullable|date',
-            'tanggal_selesai' => 'nullable|date',
-            'status' => 'required|in:perencanaan,berjalan,selesai',
-            'lokasi' => 'required|string|max:255',
-            'jenis_proyek' => 'required|in:kontraktor,cost and fee,office',
-            'diskon_rab' => 'nullable|numeric|min:0',
-            'file_spk' => 'nullable|file|mimes:pdf|max:10240',
+        $hitung = ProyekService::hitungKontrak($proyek, $request);
+    
+        // Gabungkan hasil validasi dan hasil perhitungan
+        $data = array_merge($validated, [
+            'diskon_rab' => $hitung['diskon_rab'],
+            'nilai_kontrak' => $hitung['nilai_kontrak'],
         ]);
+
+        $proyek->update($data);
     
-        // Hitung nilai kontrak = penawaran - diskon
-        $nilai_penawaran = $proyek->nilai_penawaran ?? 0;
-        $diskon_rab = $request->diskon_rab ?? 0;
-        $nilai_kontrak = $nilai_penawaran - $diskon_rab;
+   // Status otomatis
+        $proyek->status = ($request->tanggal_mulai && $request->tanggal_selesai && $proyek->status === 'perencanaan')
+            ? 'berjalan'
+            : $request->status;
+        $proyek->save();
     
-        // Update data
-        $proyek->update([
-            'nama_proyek'       => $request->nama_proyek,
-            'pemberi_kerja_id'  => $request->pemberi_kerja_id,
-            'no_spk'            => $request->no_spk,
-            'nilai_spk'         => $request->nilai_spk,
-            'tanggal_mulai'     => $request->tanggal_mulai,
-            'tanggal_selesai'   => $request->tanggal_selesai,
-            'lokasi'            => $request->lokasi,
-            'jenis_proyek'      => $request->jenis_proyek,
-            'diskon_rab'        => $diskon_rab,
-            'nilai_kontrak'     => $nilai_kontrak,
-        ]);
-    
-        // Auto-update status jika tanggal mulai & selesai terisi
-        if ($request->tanggal_mulai && $request->tanggal_selesai && $proyek->status === 'perencanaan') {
-            $proyek->status = 'berjalan';
-            $proyek->save();
-        } else {
-            $proyek->status = $request->status;
-            $proyek->save();
-        }
-    
-        // Handle file SPK (optional)
+    // Handle file SPK (optional)
         if ($request->hasFile('file_spk')) {
             if ($proyek->file_spk && Storage::exists('public/' . $proyek->file_spk)) {
                 Storage::delete('public/' . $proyek->file_spk);
             }
-    
+
             $path = $request->file('file_spk')->store('spk', 'public');
             $proyek->file_spk = $path;
             $proyek->save();
         }
-    
-        return redirect()->route('proyek.index')->with('success', 'Proyek berhasil diperbarui.');
+        return redirect()->route('proyek.show', $proyek->id)->with('success', 'Proyek berhasil diperbarui.');
     }
     
 

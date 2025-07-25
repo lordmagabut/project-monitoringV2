@@ -75,12 +75,6 @@
               </li>
               @endif
 
-              @if (auth()->user()->akses_proyek == 1)
-              <li class="nav-item">
-                <a class="nav-link {{ active_class(['proyek*']) }}" href="{{ url('/proyek/') }}">Daftar Proyek</a>
-              </li>
-              @endif
-
               @if (auth()->user()->akses_barang == 1)
               <li class="nav-item">
                 <a class="nav-link {{ active_class(['barang*']) }}" href="{{ url('/barang/') }}">Daftar Barang</a>
@@ -125,11 +119,28 @@
                   <li class="nav-item">
                     <a href="{{ url('/so/') }}" class="nav-link">Pesanan Penjualan</a>
                   </li>
+
                 </ul>
               </div>
+              <div class="col-md-3">
+                <p class="category-heading">Proyek</p>
+                <ul class="submenu-item pe-0">
+                  @if (auth()->user()->akses_proyek == 1)
+                    <li class="nav-item">
+                      <a class="nav-link" href="{{ url('/proyek/') }}">Daftar Proyek</a>
+                    </li>
+                  @endif
+                  @if (auth()->user()->akses_proyek == 1)
+                    <li class="nav-item">
+                      <a class="nav-link" href="{{ url('/ahsp/') }}">Analisa Harga Satuan Pekerjaan</a>
+                    </li>
+                  @endif
+                </ul>
+             </div>   
             </div>
           </div>
         </li>
+     
         <li class="nav-item mega-menu">
           <a href="#" class="nav-link">
             <i class="link-icon" data-feather="book"></i>

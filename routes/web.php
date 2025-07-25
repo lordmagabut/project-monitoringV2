@@ -12,10 +12,10 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\JurnalController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\FakturController;  
-use App\Http\Controllers\ProjectTaskController;
 use App\Http\Controllers\RabController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\RabProgressController;
+use App\Http\Controllers\AhspController;
 
 
 // Route Login - Tidak Perlu Proteksi
@@ -64,14 +64,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/faktur/{id}/approve', [\App\Http\Controllers\FakturController::class, 'approve'])
     ->name('faktur.approve');
 
-    // Pembayaran Faktur
-    // Route::get('/pembayaran_faktur', [PembayaranFakturController::class, 'index'])->name('pembayaran_faktur.index');
-    // Route::get('/pembayaran_faktur/create', [PembayaranFakturController::class, 'create'])->name('pembayaran_faktur.create');
-    // Route::post('/pembayaran_faktur/store', [PembayaranFakturController::class, 'store'])->name('pembayaran_faktur.store');
-
-    // Route::get('pembayaran_faktur/histori/{id_faktur}', [PembayaranFakturController::class, 'histori'])->name('pembayaran_faktur.histori');
-    // Route::delete('pembayaran_faktur/histori/{id}', [PembayaranFakturController::class, 'destroy'])->name('pembayaran_faktur.histori');
-    
     // COA
     Route::resource('coa', \App\Http\Controllers\CoaController::class)
     ->middleware('cek_akses_coa');
@@ -84,11 +76,15 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('proyek', \App\Http\Controllers\ProyekController::class)
     ->middleware('cek_akses_proyek');
     Route::post('proyek/generate-ulang/{proyek_id}', [ProyekController::class, 'generateUlang'])->name('proyek.generateUlang');
+    Route::get('proyek/{id}', [ProyekController::class, 'show'])->name('proyek.show');
+
 
     // RAB
     Route::resource('hsd-material', HsdMaterialController::class);
     Route::resource('hsd-upah', HsdUpahController::class);
     Route::resource('ahsp', AhspController::class);
+    Route::post('/ahsp/duplicate/{id}', [AhspController::class, 'duplicate'])->name('ahsp.duplicate');
+
 
 
     // RAB Schedule Progress

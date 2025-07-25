@@ -84,11 +84,11 @@
           {{-- Tanggal --}}
           <div class="mb-3">
               <label for="tanggal_mulai">Tanggal Mulai</label>
-              <input type="date" name="tanggal_mulai" class="form-control" value="{{ $proyek->tanggal_mulai }}" required>
+              <input type="date" name="tanggal_mulai" class="form-control" value="{{ $proyek->tanggal_mulai }}">
           </div>
           <div class="mb-3">
               <label for="tanggal_selesai">Tanggal Selesai</label>
-              <input type="date" name="tanggal_selesai" class="form-control" value="{{ $proyek->tanggal_selesai }}" required>
+              <input type="date" name="tanggal_selesai" class="form-control" value="{{ $proyek->tanggal_selesai }}">
           </div>
 
           {{-- Status --}}
