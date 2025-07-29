@@ -95,7 +95,6 @@ class ProyekController extends Controller
         }
         return redirect()->route('proyek.show', $proyek->id)->with('success', 'Proyek berhasil diperbarui.');
     }
-    
 
     public function destroy($id)
     {

@@ -1,5 +1,6 @@
 <?php
-
+use Illuminate\Support\Facades\Route;
+use App\Livewire\RabInput;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PerusahaanController;
 use App\Http\Controllers\SupplierController;
@@ -16,7 +17,8 @@ use App\Http\Controllers\RabController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\RabProgressController;
 use App\Http\Controllers\AhspController;
-
+use App\Http\Controllers\HsdMaterialController; // <-- Tambahkan ini
+use App\Http\Controllers\HsdUpahController;     // <-- Tambahkan ini
 
 // Route Login - Tidak Perlu Proteksi
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -83,12 +85,14 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('hsd-material', HsdMaterialController::class);
     Route::resource('hsd-upah', HsdUpahController::class);
     Route::resource('ahsp', AhspController::class);
-    Route::post('/ahsp/duplicate/{id}', [AhspController::class, 'duplicate'])->name('ahsp.duplicate');
+    Route::post('/ahsp/{ahsp}/duplicate', [AhspController::class, 'duplicate'])->name('ahsp.duplicate');
+    Route::get('/ahsp/search', [AhspController::class, 'search'])->name('ahsp.search');
 
 
 
     // RAB Schedule Progress
     Route::get('/rab/{proyek_id}', [RabController::class, 'index'])->name('rab.index');
+    Route::get('/proyek/{proyek_id}/rab', [RabController::class, 'input'])->name('rab.input');
     Route::post('/rab/import', [RabController::class, 'import'])->name('rab.import');
     Route::delete('/rab/reset/{proyek_id}', [RabController::class, 'reset'])->name('rab.reset');
     Route::post('/proyek/{id}/generate-schedule', [ProyekController::class, 'generateSchedule'])->name('proyek.generateSchedule');
@@ -124,7 +128,5 @@ Route::middleware(['auth'])->group(function () {
     //Neraca dan Laba Rugi
     Route::get('/laporan/neraca', [\App\Http\Controllers\LaporanController::class, 'neraca'])->name('laporan.neraca');
     Route::get('/laporan/laba-rugi', [\App\Http\Controllers\LaporanController::class, 'labaRugi'])->name('laporan.labaRugi');
-
-
 
 });

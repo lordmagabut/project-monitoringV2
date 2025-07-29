@@ -11,6 +11,7 @@ class RabDetail extends Model
     protected $fillable = [
         'proyek_id',
         'rab_header_id',
+        'ahsp_id', // <<< Tambahkan ini
         'kode',
         'kode_sort',
         'deskripsi',
@@ -21,7 +22,15 @@ class RabDetail extends Model
         'harga_satuan',
         'total',
         'bobot',
+        'created_at', // Tambahkan jika belum
+        'updated_at', // Tambahkan jika belum
     ];
+
+    // Relasi ke AHSPHeader
+    public function ahsp()
+    {
+        return $this->belongsTo(AhspHeader::class, 'ahsp_id');
+    }
 
     // Relasi ke header (sub-induk)
     public function header()
