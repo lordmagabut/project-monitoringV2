@@ -22,4 +22,14 @@ class AhspHeader extends Model
     {
         return $this->hasMany(AhspDetail::class, 'ahsp_id');
     }
+
+    public function getTotalMaterialAttribute()
+    {
+        return $this->details->where('tipe', 'material')->sum('subtotal');
+    }
+
+    public function getTotalUpahAttribute()
+    {
+        return $this->details->where('tipe', 'upah')->sum('subtotal');
+    }
 }

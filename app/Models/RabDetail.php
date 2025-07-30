@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class RabDetail extends Model
 {
-    protected $table = 'rab_detail';
+    use HasFactory;
 
+    protected $table = 'rab_detail';
     protected $fillable = [
         'proyek_id',
         'rab_header_id',
@@ -38,9 +40,19 @@ class RabDetail extends Model
         return $this->belongsTo(RabHeader::class, 'rab_header_id');
     }
 
+    public function rabHeader()
+    {
+        return $this->belongsTo(\App\Models\RabHeader::class, 'rab_header_id');
+    }
+
     // Relasi ke proyek
     public function proyek()
     {
         return $this->belongsTo(Proyek::class, 'proyek_id');
+    }
+    
+    public function penawaranItems()
+    {
+        return $this->hasMany(RabPenawaranItem::class, 'rab_detail_id');
     }
 }

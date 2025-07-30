@@ -19,6 +19,7 @@ use App\Http\Controllers\RabProgressController;
 use App\Http\Controllers\AhspController;
 use App\Http\Controllers\HsdMaterialController; // <-- Tambahkan ini
 use App\Http\Controllers\HsdUpahController;     // <-- Tambahkan ini
+use App\Http\Controllers\RabPenawaranController;
 
 // Route Login - Tidak Perlu Proteksi
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -105,6 +106,27 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/proyek/{proyek}/progress/{minggu_ke}/update', [RabProgressController::class, 'update'])->name('proyek.progress.update');
     Route::post('/proyek/{proyek}/progress/{minggu_ke}/sahkan', [RabProgressController::class, 'sahkan'])->name('proyek.progress.sahkan');
     Route::delete('/proyek/{proyek}/progress/{minggu_ke}', [RabProgressController::class, 'destroy'])->name('proyek.progress.destroy');
+
+
+// Rute untuk RAB Penawaran
+    Route::get('/proyek/{proyek}/penawaran/search-rab-details', [RabPenawaranController::class, 'searchRabDetails'])->name('proyek.penawaran.searchRabDetails');
+    Route::get('/proyek/{proyek}/penawaran/search-rab-headers', [RabPenawaranController::class, 'searchRabHeaders'])->name('proyek.penawaran.searchRabHeaders');
+    Route::prefix('proyek/{proyek}/penawaran')->name('proyek.penawaran.')->group(function () {
+        Route::get('/', [RabPenawaranController::class, 'index'])->name('index');
+        Route::get('/create', [RabPenawaranController::class, 'create'])->name('create');
+        Route::post('/', [RabPenawaranController::class, 'store'])->name('store');
+        Route::get('/{penawaran}', [RabPenawaranController::class, 'show'])->name('show');
+        Route::get('{penawaran}/show-gab', [RabPenawaranController::class, 'showGab'])->name('proyek.penawaran.showGab');
+        Route::get('/{penawaran}/pdf', [RabPenawaranController::class, 'generatePdf'])->name('generatePdf');
+        Route::get('/{penawaran}/edit', [RabPenawaranController::class, 'edit'])->name('edit');
+        Route::put('/{penawaran}', [RabPenawaranController::class, 'update'])->name('update');
+        Route::delete('/{penawaran}', [RabPenawaranController::class, 'destroy'])->name('destroy');
+        // Rute untuk AJAX pencarian RAB Headers
+        
+        // Rute untuk AJAX pencarian RAB Details
+
+
+    });
 
     // Pemberi Kerja
     Route::resource('pemberiKerja', PemberiKerjaController::class)->middleware('cek_akses_pemberi_kerja');

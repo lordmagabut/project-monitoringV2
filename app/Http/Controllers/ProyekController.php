@@ -274,4 +274,9 @@ class ProyekController extends Controller
         }
     }
 
+    public function penawarans()
+    {
+        return $this->hasMany(RabPenawaranHeader::class);
+    }
+
 }

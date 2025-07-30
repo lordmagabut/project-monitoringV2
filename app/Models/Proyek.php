@@ -42,4 +42,9 @@ class Proyek extends Model
         return $this->hasMany(RabDetail::class, 'proyek_id');
     }
 
+    public function penawarans()
+    {
+        return $this->hasMany(RabPenawaranHeader::class);
+    }
+
 }
