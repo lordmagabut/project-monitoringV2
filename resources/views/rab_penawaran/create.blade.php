@@ -1,6 +1,7 @@
 @extends('layout.master')
 
 @push('plugin-styles')
+    {{-- Pastikan hanya ada satu link untuk CSS Select2 di sini --}}
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     {{-- Tambahkan CSS kustom Anda di sini --}}
 @endpush
@@ -36,6 +37,17 @@
                         <label for="tanggal_penawaran" class="form-label">Tanggal Penawaran <span class="text-danger">*</span></label>
                         <input type="date" name="tanggal_penawaran" id="tanggal_penawaran" class="form-control @error('tanggal_penawaran') is-invalid @enderror" value="{{ old('tanggal_penawaran', date('Y-m-d')) }}" required>
                         @error('tanggal_penawaran') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                    {{-- Input Area dan Spesifikasi ini mungkin akan diisi otomatis dari RAB Header/Detail pertama yang dimuat --}}
+                    <div class="col-md-6">
+                        <label for="area" class="form-label">Area Penawaran</label>
+                        <input type="text" name="area" id="area" class="form-control @error('area') is-invalid @enderror" value="{{ old('area', $preloadedArea ?? '') }}">
+                        @error('area') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label for="spesifikasi" class="form-label">Spesifikasi Penawaran</label>
+                        <textarea name="spesifikasi" id="spesifikasi" rows="3" class="form-control @error('spesifikasi') is-invalid @enderror">{{ old('spesifikasi', $preloadedSpesifikasi ?? '') }}</textarea>
+                        @error('spesifikasi') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
                 </div>
             </div>
@@ -83,7 +95,7 @@
                             <span>Jumlah Diskon:</span>
                             <span class="fw-bold text-danger" id="discount-amount">Rp 0</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
+                        <div class="d-flex justify-content="between mb-2">
                             <span class="fs-5">Total Akhir Penawaran:</span>
                             <span class="fs-5 fw-bold text-primary" id="final-total">Rp 0</span>
                         </div>
@@ -102,8 +114,12 @@
 @endsection
 
 @push('custom-scripts')
+{{-- PENTING: jQuery harus dimuat PERTAMA --}}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+{{-- PENTING: Select2 JS harus dimuat SETELAH jQuery dan SEBELUM skrip kustom Anda --}}
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://unpkg.com/feather-icons"></script>
+
 <script>
     feather.replace();
 
@@ -140,13 +156,32 @@
                         return {
                             results: data.map(item => ({
                                 id: item.id,
-                                text: item.text
+                                text: item.text,
+                                area: item.area, // Tambahkan area dari header
+                                spesifikasi: item.spesifikasi // Tambahkan spesifikasi dari header
                             }))
                         };
                     },
                     cache: true
                 }
             });
+
+            // Event listener untuk perubahan nilai Select2 pada load_rab_header_select
+            $(element).on('select2:select', function (e) {
+                const data = e.params.data;
+                // Isi input area dan spesifikasi utama jika kosong
+                if (!$('#area').val()) {
+                    $('#area').val(data.area || '');
+                }
+                if (!$('#spesifikasi').val()) {
+                    $('#spesifikasi').val(data.spesifikasi || '');
+                }
+            });
+
+            $(element).on('select2:clear', function (e) {
+                // Tidak perlu reset area/spesifikasi utama di sini, karena bisa jadi sudah diisi dari sumber lain
+            });
+
         } else if (type === 'rab-detail-select') {
             $(element).select2({
                 placeholder: '-- Pilih Detail RAB --',
@@ -163,12 +198,15 @@
                         };
                     },
                     processResults: function (data) {
+                        console.log('Data received from searchRabDetails (Select2):', data); // DEBUGGING: Log data yang diterima
                         return {
                             results: data.map(item => ({
                                 id: item.id,
                                 text: item.text,
                                 harga_satuan: item.harga_satuan,
-                                ahsp_id: item.ahsp_id // Jika perlu detail AHSP lebih lanjut
+                                ahsp_id: item.ahsp_id,
+                                area: item.area, // Sertakan area dari RabDetail
+                                spesifikasi: item.spesifikasi // Sertakan spesifikasi dari RabDetail
                             }))
                         };
                     },
@@ -181,11 +219,41 @@
                 const data = e.params.data;
                 const row = $(this).closest('tr');
                 
+                console.log('Selected RAB Detail data (Select2):', data); // DEBUGGING: Log data item yang dipilih
+
+                const areaInput = row.find('input[name$="[area]"]');
+                const spesifikasiTextarea = row.find('textarea[name$="[spesifikasi]"]');
+
+                console.log('Area input element found (Select2):', areaInput.length > 0 ? areaInput[0] : 'Not found');
+                console.log('Spesifikasi textarea element found (Select2):', spesifikasiTextarea.length > 0 ? spesifikasiTextarea[0] : 'Not found');
+
                 // Set data ke input/span yang relevan
                 row.find('input[name$="[kode]"]').val(data.text.split(' - ')[0]); // Ambil kode dari text
                 row.find('input[name$="[deskripsi]"]').val(data.text.split(' - ')[1].split(' (')[0]); // Ambil deskripsi
                 row.find('input[name$="[satuan]"]').val(data.text.match(/\((.*?)\)/)[1]); // Ambil satuan
                 
+                // Set data area dan spesifikasi ke kolom baru
+                console.log('Attempting to set Area to (Select2):', data.area || '');
+                if (areaInput.length > 0) {
+                    areaInput[0].value = data.area || ''; // Set value directly on native DOM element
+                    areaInput.trigger('input'); // Trigger input event
+                    areaInput.trigger('change'); // Trigger change event
+                    areaInput.focus(); // Try focusing to force re-render
+                    areaInput.blur(); // Then blur
+                }
+
+                console.log('Attempting to set Spesifikasi to (Select2):', data.spesifikasi || '');
+                if (spesifikasiTextarea.length > 0) {
+                    spesifikasiTextarea[0].value = data.spesifikasi || ''; // Set value directly on native DOM element
+                    spesifikasiTextarea.trigger('input'); // Trigger input event
+                    spesifikasiTextarea.trigger('change'); // Trigger change event
+                    spesifikasiTextarea.focus(); // Try focusing to force re-render
+                    spesifikasiTextarea.blur(); // Then blur
+                }
+
+                console.log('Area input value after setting (immediate, Select2):', areaInput.val());
+                console.log('Spesifikasi textarea value after setting (immediate, Select2):', spesifikasiTextarea.val());
+
                 // Simpan harga dasar di data atribut untuk perhitungan
                 row.data('harga-satuan-dasar', data.harga_satuan);
 
@@ -194,11 +262,14 @@
             });
 
             $(element).on('select2:clear', function (e) {
+                console.log('Select2 Clear event triggered for RAB Detail select.'); // DEBUGGING: Add this log
                 const row = $(this).closest('tr');
                 row.find('input[name$="[kode]"]').val('');
                 row.find('input[name$="[deskripsi]"]').val('');
                 row.find('input[name$="[volume]"]').val(1);
                 row.find('input[name$="[satuan]"]').val('');
+                row.find('input[name$="[area]"]').val(''); // Clear area
+                row.find('textarea[name$="[spesifikasi]"]').val(''); // Clear spesifikasi
                 row.data('harga-satuan-dasar', 0);
                 updateItemRowCalculations(row);
             });
@@ -266,6 +337,8 @@
                 <td><input type="text" name="sections[${currentSectionIndex}][items][${currentItemIndex}][deskripsi]" class="form-control form-control-sm" value="" required></td>
                 <td><input type="number" step="0.01" name="sections[${currentSectionIndex}][items][${currentItemIndex}][volume]" class="form-control form-control-sm" value="1" required></td>
                 <td><input type="text" name="sections[${currentSectionIndex}][items][${currentItemIndex}][satuan]" class="form-control form-control-sm" value="" required></td>
+                <td><input type="text" name="sections[${currentSectionIndex}][items][${currentItemIndex}][area]" class="form-control form-control-sm" value=""></td>
+                <td><textarea name="sections[${currentSectionIndex}][items][${currentItemIndex}][spesifikasi]" rows="1" class="form-control form-control-sm"></textarea></td>
                 <td><span class="harga-penawaran">Rp 0</span></td>
                 <td><span class="total-item">Rp 0</span></td>
                 <td><button type="button" class="btn btn-sm btn-danger remove-item"><i data-feather="x"></i></button></td>
@@ -276,10 +349,33 @@
         
         // Pre-fill item data if provided
         if (itemData) {
+            console.log(`Preloading item ${currentItemIndex + 1} with data:`, itemData); // DEBUGGING: Log preloaded item data
             newRow.find('input[name$="[kode]"]').val(itemData.kode);
             newRow.find('input[name$="[deskripsi]"]').val(itemData.deskripsi);
             newRow.find('input[name$="[volume]"]').val(itemData.volume);
             newRow.find('input[name$="[satuan]"]').val(itemData.satuan);
+            
+            // Set area and spesifikasi for preloaded items
+            const areaInput = newRow.find('input[name$="[area]"]');
+            const spesifikasiTextarea = newRow.find('textarea[name$="[spesifikasi]"]');
+
+            console.log('Attempting to set preloaded Area to:', itemData.area || '');
+            if (areaInput.length > 0) {
+                areaInput[0].value = itemData.area || '';
+                areaInput.trigger('input');
+                areaInput.trigger('change');
+            }
+
+            console.log('Attempting to set preloaded Spesifikasi to:', itemData.spesifikasi || '');
+            if (spesifikasiTextarea.length > 0) {
+                spesifikasiTextarea[0].value = itemData.spesifikasi || '';
+                spesifikasiTextarea.trigger('input');
+                spesifikasiTextarea.trigger('change');
+            }
+            console.log('Preloaded Area value after setting:', areaInput.val());
+            console.log('Preloaded Spesifikasi value after setting:', spesifikasiTextarea.val());
+
+
             newRow.data('harga-satuan-dasar', itemData.harga_satuan_dasar);
 
             // Set rab_detail_id for the select2
@@ -320,7 +416,7 @@
                             <select name="sections[${currentSectionIndex}][rab_header_id]" class="form-select rab-header-select" required>
                                 <option value="">-- Pilih Header RAB --</option>
                                 @foreach($flatRabHeaders as $header)
-                                    <option value="{{ $header['id'] }}">{{ $header['display_name'] }}</option>
+                                    <option value="{{ $header['id'] }}">{{ $header['text'] }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -340,13 +436,15 @@
                             <thead>
                                 <tr>
                                     <th style="width: 5%">#</th>
-                                    <th style="width: 25%">Item RAB Dasar</th>
-                                    <th style="width: 10%">Kode</th>
-                                    <th style="width: 20%">Deskripsi</th>
-                                    <th style="width: 10%">Volume</th>
-                                    <th style="width: 10%">Satuan</th>
-                                    <th style="width: 10%">Harga Penawaran</th>
-                                    <th style="width: 10%">Total Item</th>
+                                    <th style="width: 15%">Item RAB Dasar</th> {{-- Mengurangi lebar untuk mengakomodasi kolom baru --}}
+                                    <th style="width: 8%">Kode</th>
+                                    <th style="width: 15%">Deskripsi</th>
+                                    <th style="width: 8%">Volume</th>
+                                    <th style="width: 8%">Satuan</th>
+                                    <th style="width: 10%">Area</th>        {{-- Kolom baru --}}
+                                    <th style="width: 15%">Spesifikasi</th> {{-- Kolom baru --}}
+                                    <th style="width: 8%">Harga Penawaran</th>
+                                    <th style="width: 8%">Total Item</th>
                                     <th style="width: 5%"></th>
                                 </tr>
                             </thead>
@@ -365,6 +463,7 @@
 
         // Pre-fill section data if provided
         if (sectionData) {
+            console.log(`Preloading section ${currentSectionIndex + 1} with data:`, sectionData); // DEBUGGING: Log preloaded section data
             newSectionCard.find('input[name$="[profit_percentage]"]').val(sectionData.profit_percentage);
             newSectionCard.find('input[name$="[overhead_percentage]"]').val(sectionData.overhead_percentage);
             
@@ -381,13 +480,6 @@
                     addItemRow(newSectionCard, item);
                 });
             }
-            // --- MODIFIKASI DIMULAI DI SINI ---
-            // Hapus baris di bawah ini jika Anda ingin section induk bisa kosong itemnya
-            // else {
-            //     // If no items in preloaded section, add one empty row
-            //     addItemRow(newSectionCard);
-            // }
-            // --- MODIFIKASI BERAKHIR DI SINI ---
 
             // Recursively add children sections
             if (sectionData.children_sections && sectionData.children_sections.length > 0) {
@@ -475,8 +567,9 @@
         });
 
         // Cek apakah ada data RAB yang di-preload dari controller
-        const preloadedRabData = @json($preloadedRabData);
+        const preloadedRabData = @json($preloadedRabData ?? []); 
         if (preloadedRabData && preloadedRabData.length > 0) {
+            console.log('Preloaded RAB Data received:', preloadedRabData); // DEBUGGING: Log seluruh preloaded data
             // Clear existing default section if it was added
             $('#sections-container').empty();
             sectionCounter = 0; // Reset counter for preloaded data
@@ -485,6 +578,15 @@
             preloadedRabData.forEach(section => {
                 addSection(section); // Add each as a new section
             });
+
+            // Populate main area and spesifikasi from the first preloaded section if they are empty
+            if (preloadedRabData[0] && preloadedRabData[0].area && !$('#area').val()) {
+                $('#area').val(preloadedRabData[0].area);
+            }
+            if (preloadedRabData[0] && preloadedRabData[0].spesifikasi && !$('#spesifikasi').val()) {
+                $('#spesifikasi').val(preloadedRabData[0].spesifikasi);
+            }
+
         } else {
             // Tambah satu section default saat halaman dimuat jika tidak ada preloaded data
             addSection();

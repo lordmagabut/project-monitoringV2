@@ -19,6 +19,8 @@ class RabPenawaranHeader extends Model
         'discount_amount',
         'final_total_penawaran',
         'status',
+        'area',
+        'spesifikasi',
     ];
 
     public function proyek()
@@ -29,5 +31,10 @@ class RabPenawaranHeader extends Model
     public function sections()
     {
         return $this->hasMany(RabPenawaranSection::class);
+    }
+    
+        public function items()
+    {
+        return $this->hasManyThrough(RabPenawaranItem::class, RabPenawaranSection::class);
     }
 }

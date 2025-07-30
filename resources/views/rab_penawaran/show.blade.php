@@ -1,35 +1,34 @@
 @extends('layout.master')
 
 @push('plugin-styles')
-{{-- Font Awesome untuk ikon --}}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-{{-- Animate.css untuk animasi (opsional) --}}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 <style>
-    /* Customisasi umum untuk card dan tabel */
+    /* General customizations for card and table */
     .card {
         border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         border: none;
     }
     .card-header {
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
-        padding: 1.25rem 1.5rem;
+        padding: 1.5rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        background-color: #007bff; /* Primary color */
+        color: white;
     }
     .table-borderless th, .table-borderless td {
-        padding-top: 0.75rem;
-        padding-bottom: 0.75rem;
+        padding: 1rem;
         vertical-align: top;
         border-top: none;
     }
     .table-borderless th {
         color: #495057;
         font-weight: 600;
-        width: 200px; /* Lebar tetap untuk label */
+        width: 200px; /* Fixed width for labels */
     }
     .table-bordered thead th {
         background-color: #e9ecef;
@@ -55,20 +54,11 @@
     .section-header-row:hover {
         background-color: #d1e7ff;
     }
-    .section-header-row .collapse-icon {
-        transition: transform 0.2s ease;
-    }
-    .section-header-row[aria-expanded="true"] .collapse-icon {
-        transform: rotate(180deg);
-    }
     .item-table-container {
         padding: 10px;
         background-color: #f8fafd; /* Very light gray for item tables */
-        border-left: 1px solid #e0e0e0;
-        border-right: 1px solid #e0e0e0;
-        border-bottom: 1px solid #e0e0e0;
-        border-bottom-left-radius: 8px;
-        border-bottom-right-radius: 8px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
     }
     .item-table th, .item-table td {
         white-space: nowrap;
@@ -89,23 +79,23 @@
 
 @section('content')
 <div class="card shadow-sm animate__animated animate__fadeIn">
-    <div class="card-header bg-primary text-white">
+    <div class="card-header">
         <h4 class="card-title mb-0 d-flex align-items-center">
             <i class="fas fa-file-invoice-dollar me-2"></i> Detail Penawaran
         </h4>
-        <a href="{{ route('proyek.show', $proyek->id) }}#rabContent" class="btn btn-light btn-sm d-inline-flex align-items-center">
-            <i class="fas fa-arrow-left me-1"></i> Kembali ke RAB Proyek
+        <a href="{{ route('proyek.show', $proyek->id) }}#rabContent" class="btn btn-light btn-sm d-inline-flex align-items-center" data-bs-toggle="tooltip" title="Kembali ke RAB Proyek">
+            <i class="fas fa-arrow-left me-1"></i> Kembali
         </a>
     </div>
-    <div class="card-body p-3 p-md-4">
+    <div class="card-body p-4">
         @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show animate__animated animate__fadeIn mb-4" role="alert">
+            <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
                 <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
         @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show animate__animated animate__fadeIn mb-4" role="alert">
+            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
                 <i class="fas fa-times-circle me-2"></i> {{ session('error') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -232,20 +222,18 @@
                 </div>
             </div>
         @empty
-            <div class="alert alert-warning text-center animate__animated animate__fadeIn" role="alert">
+            <div class="alert alert-warning text-center" role="alert">
                 <i class="fas fa-exclamation-circle me-2"></i> Belum ada bagian penawaran yang dibuat untuk penawaran ini.
             </div>
         @endforelse
 
         <div class="mt-4 text-center text-md-start">
-            <a href="{{ route('proyek.penawaran.edit', ['proyek' => $proyek->id, 'penawaran' => $penawaran->id]) }}" class="btn btn-warning me-2">
-                <i class="fas fa-edit me-1"></i> Edit Penawaran
+            <a href="{{ route('proyek.penawaran.edit', ['proyek' => $proyek->id, 'penawaran' => $penawaran->id]) }}" class="btn btn-warning me-2" data-bs-toggle="tooltip" title="Edit Penawaran">
+                <i class="fas fa-edit me-1"></i> Edit
             </a>
-            {{-- Tombol Generate PDF --}}
-            <a href="{{ route('proyek.penawaran.generatePdf', ['proyek' => $proyek->id, 'penawaran' => $penawaran->id]) }}" class="btn btn-info me-2" target="_blank">
+            <a href="{{ route('proyek.penawaran.generatePdf', ['proyek' => $proyek->id, 'penawaran' => $penawaran->id]) }}" class="btn btn-info me-2" target="_blank" data-bs-toggle="tooltip" title="Generate PDF">
                 <i class="fas fa-file-pdf me-1"></i> Generate PDF
             </a>
-            {{-- Tambahkan tombol aksi lain jika diperlukan --}}
         </div>
     </div>
 </div>
@@ -253,13 +241,15 @@
 
 @push('custom-scripts')
 <script>
-    // Inisialisasi Feather Icons jika belum diinisialisasi di master layout
+    // Initialize Feather Icons if not already initialized in master layout
     if (typeof feather !== 'undefined') {
         feather.replace();
     }
 
-    // Script untuk menangani collapse Bootstrap secara manual jika diperlukan
-    // Bootstrap 5 sudah menangani ini secara otomatis dengan data-bs-toggle="collapse"
-    // Namun, jika ada masalah, Anda bisa menambahkan logika di sini.
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
 </script>
 @endpush
